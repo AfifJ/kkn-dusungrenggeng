@@ -1,4 +1,30 @@
+"use client";
+import { useState, useEffect } from "react";
+
 export default function SambutanKepala() {
+  const [settings, setSettings] = useState({
+    sambutan: {
+      nama: "Bapak Sutrisno",
+      paragraf: "Dengan segala kerendahan hati, saya menyambut Anda di website resmi Dusun Grenggeng."
+    }
+  });
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/admin?section=settings');
+      const data = await response.json();
+      if (data && Object.keys(data).length > 0) {
+        setSettings(data);
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
   return (
     <section className="bg-white py-16">
       <div className="container mx-auto px-4">
@@ -12,27 +38,16 @@ export default function SambutanKepala() {
             <div className="w-full p-6 md:p-8">
               <div className="mb-4">
                 <h3 className="text-2xl font-bold text-green-700">
-                  Bapak Sutrisno
+                  {settings.sambutan?.nama || "Bapak Sutrisno"}
                 </h3>
-                <p className="text-green-600">Kepala Dusun Grenggeng</p>
+                <p className="text-green-600">
+                  Kepala Dusun Grenggeng
+                </p>
               </div>
 
               <div className="prose text-gray-700">
-                <p className="mb-4">
-                  Dengan segala kerendahan hati, saya menyambut Anda di
-                  website resmi Dusun Grenggeng. Dusun kami yang kecil ini
-                  telah dikenal sebagai penghasil tahu berkualitas dan hasil
-                  pertanian yang melimpah.
-                </p>
-                <p className="mb-4">
-                  Kami bangga dengan warisan kuliner tahu tradisional yang
-                  telah dipertahankan secara turun-temurun, serta semangat
-                  gotong royong masyarakat dalam mengelola hasil bumi.
-                </p>
                 <p>
-                  Melalui website ini, kami berharap dapat memperkenalkan
-                  kekayaan alam dan budaya Dusun Grenggeng kepada lebih banyak
-                  orang. Terima kasih atas kunjungan Anda.
+                  {settings.sambutan?.paragraf || "Dengan segala kerendahan hati, saya menyambut Anda di website resmi Dusun Grenggeng. Dusun kami yang kecil ini telah dikenal sebagai penghasil tahu berkualitas dan hasil pertanian yang melimpah. Kami bangga dengan warisan kuliner tahu tradisional yang telah dipertahankan secara turun-temurun, serta semangat gotong royong masyarakat dalam mengelola hasil bumi. Melalui website ini, kami berharap dapat memperkenalkan kekayaan alam dan budaya Dusun Grenggeng kepada lebih banyak orang. Terima kasih atas kunjungan Anda."}
                 </p>
               </div>
             </div>
@@ -42,3 +57,12 @@ export default function SambutanKepala() {
     </section>
   );
 }
+// }
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }

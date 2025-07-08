@@ -56,8 +56,8 @@ export default function GaleriPage() {
             >
               <div className="h-64">
                 <Image
-                  src={item.gambar}
-                  alt={item.judul}
+                  src={item.image}
+                  alt={item.title}
                   width={500}
                   height={400}
                   className="h-full w-full object-cover"
@@ -66,14 +66,14 @@ export default function GaleriPage() {
               <div className="p-6">
                 <div className="mb-2">
                   <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                    {item.kategori}
+                    {item.category}
                   </span>
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-gray-800">
-                  {item.judul}
+                  {item.title}
                 </h3>
                 <p className="text-sm text-gray-600 line-clamp-3">
-                  {item.deskripsi}
+                  {item.deskripsi || `Dokumentasi ${item.category.toLowerCase()} di Dusun Grenggeng`}
                 </p>
               </div>
             </div>

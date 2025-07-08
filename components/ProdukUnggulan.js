@@ -4,7 +4,7 @@ import { produkData } from "../data/produk";
 
 export default function ProdukUnggulan() {
   // Filter hanya produk unggulan (featured)
-  const produkUnggulan = produkData.filter((item) => item.featured);
+  const produkUnggulan = produkData;
 
   return (
     <section className="bg-white py-16">
@@ -40,23 +40,6 @@ export default function ProdukUnggulan() {
                   {item.nama}
                 </h3>
                 <p className="mb-4 text-gray-600">{item.deskripsi}</p>
-
-                <div className="mb-4">
-                  <h4 className="mb-2 text-sm font-semibold text-green-700">
-                    Keunggulan:
-                  </h4>
-                  <ul className="flex flex-wrap gap-2">
-                    {item.keunggulan.map((unggul, index) => (
-                      <li
-                        key={index}
-                        className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-800"
-                      >
-                        {unggul}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
                   <span className="text-lg font-semibold text-green-700">
                     {item.harga}

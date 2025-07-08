@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { produkData } from "../../data/produk";
+import { produkData } from "@/data/produk";
 
 export default function ProdukPage() {
   return (
@@ -70,23 +70,6 @@ export default function ProdukPage() {
                 <p className="mb-4 text-sm text-gray-600 line-clamp-3">
                   {item.deskripsi}
                 </p>
-
-                <div className="mb-4">
-                  <h4 className="mb-2 text-sm font-semibold text-green-700">
-                    Keunggulan:
-                  </h4>
-                  <ul className="flex flex-wrap gap-1">
-                    {item.keunggulan.map((unggul, index) => (
-                      <li
-                        key={index}
-                        className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800"
-                      >
-                        {unggul}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold text-green-700">
                     {item.harga}

@@ -2,68 +2,58 @@
 export const produkData = [
   {
     id: 1,
-    nama: "Tahu Grenggeng Original",
+    nama: "Tahu Putih Premium",
     deskripsi:
-      "Tahu tradisional dengan resep turun-temurun, dibuat dari kedelai pilihan tanpa bahan pengawet. Tekstur lembut dengan cita rasa gurih alami.",
-    harga: "Rp 12.000 / papan (10 buah)",
-    gambar:
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    keunggulan: ["Tanpa pengawet", "Dibuat manual", "Rasa autentik"],
-    featured: true,
+      "Tahu putih berkualitas tinggi yang dibuat dari kedelai pilihan dengan proses tradisional. Tekstur lembut dan rasa yang gurih menjadikan produk ini favorit konsumen.",
+    harga: "Rp 3.000/potong",
+    gambar: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    kontak: {
+      nama: "Pak Slamet",
+      telepon: "0812-3456-7890",
+      alamat: "RT 01 Dusun Grenggeng",
+    },
+    status: "active",
   },
   {
     id: 2,
-    nama: "Tahu Bakar Khas Grenggeng",
+    nama: "Tahu Kuning Spesial",
     deskripsi:
-      "Tahu khusus untuk dibakar dengan bumbu rempah rahasia. Sudah dimarinasi dengan bumbu khusus sehingga siap dibakar langsung.",
-    harga: "Rp 15.000 / pack (6 buah)",
-    gambar:
-      "https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    keunggulan: ["Siap dibakar", "Bumbu rempah lengkap", "Kemasan praktis"],
-    featured: true,
+      "Tahu kuning dengan bumbu rempah khas Grenggeng. Cocok untuk berbagai olahan masakan dan memiliki aroma yang menggugah selera.",
+    harga: "Rp 3.500/potong",
+    gambar: "https://images.unsplash.com/photo-1559847844-d418898fb2c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    kontak: {
+      nama: "Bu Siti",
+      telepon: "0813-4567-8901",
+      alamat: "RT 02 Dusun Grenggeng",
+    },
+    status: "active",
   },
   {
     id: 3,
     nama: "Beras Organik Grenggeng",
     deskripsi:
-      "Beras hasil panen petani lokal dengan sistem pertanian organik. Beraroma wangi alami dan tekstur pulen ketika dimasak.",
-    harga: "Rp 15.000 / kg",
-    gambar:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    keunggulan: ["100% organik", "Non-pestisida", "Pulen dan wangi"],
-    featured: true,
+      "Beras organik hasil pertanian lokal Grenggeng. Ditanam tanpa pestikida kimia dan pupuk buatan, menjadikannya pilihan sehat untuk keluarga.",
+    harga: "Rp 15.000/kg",
+    gambar: "https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    kontak: {
+      nama: "Pak Joko",
+      telepon: "0814-5678-9012",
+      alamat: "RT 03 Dusun Grenggeng",
+    },
+    status: "active",
   },
   {
     id: 4,
-    nama: "Keripik Singkong Original",
+    nama: "Tempe Segar Kedelai Lokal",
     deskripsi:
-      "Keripik singkong renyah dengan bumbu tradisional. Dibuat dari singkong segar pilihan dengan proses yang higienis.",
-    harga: "Rp 8.000 / pack",
-    gambar:
-      "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    keunggulan: ["Renyah tahan lama", "Bumbu tradisional", "Tanpa MSG"],
-    featured: false,
-  },
-  {
-    id: 5,
-    nama: "Madu Hutan Asli",
-    deskripsi:
-      "Madu murni dari lebah hutan sekitar Grenggeng. Dipanen langsung dari sarang lebah liar dengan kualitas premium.",
-    harga: "Rp 35.000 / botol (250ml)",
-    gambar:
-      "https://images.unsplash.com/photo-1587049352846-4a222e784d38?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    keunggulan: ["100% murni", "Tanpa campuran", "Kualitas premium"],
-    featured: false,
-  },
-  {
-    id: 6,
-    nama: "Tempe Goreng Krispi",
-    deskripsi:
-      "Tempe goreng dengan lapisan tepung krispi yang gurih. Cocok untuk lauk atau camilan dengan rasa yang menggugah selera.",
-    harga: "Rp 10.000 / pack",
-    gambar:
-      "https://images.unsplash.com/photo-1546833999-b9f581a1996d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    keunggulan: ["Krispi tahan lama", "Bumbu meresap", "Praktis"],
-    featured: false,
+      "Tempe segar yang dibuat dari kedelai lokal Grenggeng. Proses fermentasi alami menghasilkan tempe dengan kandungan protein tinggi.",
+    harga: "Rp 2.500/potong",
+    gambar: "https://images.unsplash.com/photo-1606491956689-2ea4d0b6ec02?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    kontak: {
+      nama: "Bu Ningsih",
+      telepon: "0815-6789-0123",
+      alamat: "RT 04 Dusun Grenggeng",
+    },
+    status: "active",
   },
 ];

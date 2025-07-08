@@ -1,56 +1,56 @@
 export const beritaData = [
   {
     id: 1,
-    judul: "Panen Raya Padi di Dusun Grenggeng Mencapai Rekor Tertinggi",
-    deskripsi: "Petani Dusun Grenggeng berhasil memecahkan rekor panen padi dengan kualitas premium dan hasil yang melimpah berkat penerapan teknologi pertanian modern.",
-    gambar: "/images/berita/panen-raya.jpg",
-    tanggal: "15 November 2024",
-    kategori: "Pertanian",
-    penulis: "Tim KKN"
+    judul: "Panen Raya Tahu Tradisional Grenggeng",
+    ringkasan: "Musim panen kedelai tiba, para pengrajin tahu di Grenggeng siap memproduksi tahu berkualitas untuk memenuhi permintaan pasar.",
+    konten: `
+      <p>Dusun Grenggeng kembali memasuki masa panen raya kedelai yang menjadi bahan baku utama produksi tahu tradisional. Para petani dan pengrajin tahu di dusun ini bekerja sama untuk menghasilkan produk tahu berkualitas tinggi.</p>
+      
+      <p>Menurut Pak Sutrisno, Kepala Dusun Grenggeng, "Tahun ini hasil panen kedelai sangat memuaskan. Kualitas kedelai yang baik akan menghasilkan tahu yang lezat dan bergizi."</p>
+      
+      <p>Proses pembuatan tahu di Grenggeng masih menggunakan metode tradisional yang telah diwariskan turun-temurun. Hal ini memberikan cita rasa khas yang tidak bisa ditemukan di tempat lain.</p>
+    `,
+    gambar: "/images/berita/panen-tahu.jpg",
+    tanggal: "2024-01-15",
+    kategori: "Ekonomi",
+    penulis: "Tim Redaksi Grenggeng",
+    tags: ["tahu", "panen", "ekonomi", "tradisional"],
+    status: "published"
   },
   {
     id: 2,
-    judul: "Program Pemberdayaan UMKM Lokal Sukses Meningkatkan Ekonomi Desa",
-    deskripsi: "Berbagai usaha mikro kecil menengah di Dusun Grenggeng mengalami peningkatan omzet signifikan setelah mengikuti program pemberdayaan ekonomi kreatif.",
-    gambar: "/images/berita/umkm-sukses.jpg",
-    tanggal: "12 November 2024",
-    kategori: "Ekonomi",
-    penulis: "Mahasiswa KKN"
+    judul: "Gotong Royong Pembangunan Jalan Desa",
+    ringkasan: "Warga Dusun Grenggeng bergotong royong memperbaiki jalan desa untuk meningkatkan akses transportasi dan mendukung aktivitas ekonomi.",
+    konten: `
+      <p>Dalam semangat gotong royong, seluruh warga Dusun Grenggeng bersatu padu memperbaiki jalan desa yang rusak akibat musim hujan. Kegiatan ini melibatkan seluruh elemen masyarakat dari berbagai kalangan.</p>
+      
+      <p>Kegiatan gotong royong ini berlangsung selama tiga hari berturut-turut, mulai dari pembersihan selokan hingga penambahan material jalan.</p>
+      
+      <p>"Dengan jalan yang baik, akses untuk distribusi hasil tahu dan pertanian akan lebih lancar," ujar salah satu warga yang ikut berpartisipasi.</p>
+    `,
+    gambar: "/images/berita/gotong-royong.jpg",
+    tanggal: "2024-01-10",
+    kategori: "Pembangunan",
+    penulis: "Tim Redaksi Grenggeng",
+    tags: ["gotong-royong", "pembangunan", "infrastruktur"],
+    status: "published"
   },
   {
     id: 3,
-    judul: "Festival Budaya Tradisional Dusun Grenggeng Meriah Digelar",
-    deskripsi: "Acara festival budaya tahunan berhasil menarik ratusan pengunjung dan memperkenalkan kekayaan budaya lokal kepada masyarakat luas.",
-    gambar: "/images/berita/festival-budaya.jpg",
-    tanggal: "8 November 2024",
-    kategori: "Budaya",
-    penulis: "Redaksi Desa"
-  },
-  {
-    id: 4,
-    judul: "Infrastruktur Jalan Desa Diperbaiki untuk Kemudahan Akses",
-    deskripsi: "Pemerintah daerah bekerjasama dengan masyarakat melakukan perbaikan jalan utama desa untuk meningkatkan konektivitas dan akses transportasi.",
-    gambar: "/images/berita/perbaikan-jalan.jpg",
-    tanggal: "5 November 2024",
-    kategori: "Infrastruktur",
-    penulis: "Kepala Desa"
-  },
-  {
-    id: 5,
-    judul: "Program Pelatihan Digital Marketing untuk Warga Sukses Dilaksanakan",
-    deskripsi: "Puluhan warga mengikuti pelatihan digital marketing untuk memasarkan produk lokal secara online dan memperluas jangkauan pasar.",
-    gambar: "/images/berita/pelatihan-digital.jpg",
-    tanggal: "2 November 2024",
-    kategori: "Teknologi",
-    penulis: "Fasilitator KKN"
-  },
-  {
-    id: 6,
-    judul: "Gotong Royong Pembersihan Lingkungan Ciptakan Desa Bersih",
-    deskripsi: "Seluruh warga bersatu padu dalam kegiatan gotong royong pembersihan lingkungan untuk menciptakan desa yang bersih dan sehat.",
-    gambar: "/images/berita/gotong-royong.jpg",
-    tanggal: "28 Oktober 2024",
-    kategori: "Lingkungan",
-    penulis: "Karang Taruna"
+    judul: "Pelatihan Teknologi Pertanian Modern",
+    ringkasan: "Dinas Pertanian mengadakan pelatihan teknologi pertanian modern untuk meningkatkan produktivitas petani di Dusun Grenggeng.",
+    konten: `
+      <p>Dinas Pertanian Kabupaten Magelang mengadakan pelatihan teknologi pertanian modern untuk para petani di Dusun Grenggeng. Pelatihan ini bertujuan untuk meningkatkan produktivitas dan kualitas hasil pertanian.</p>
+      
+      <p>Materi pelatihan meliputi penggunaan pupuk organik, sistem irigasi tetes, dan pengendalian hama terpadu yang ramah lingkungan.</p>
+      
+      <p>Para petani sangat antusias mengikuti pelatihan ini karena diharapkan dapat meningkatkan pendapatan mereka.</p>
+    `,
+    gambar: "/images/berita/pelatihan-pertanian.jpg",
+    tanggal: "2024-01-08",
+    kategori: "Pertanian",
+    penulis: "Tim Redaksi Grenggeng",
+    tags: ["pertanian", "teknologi", "pelatihan", "produktivitas"],
+    status: "published"
   }
 ];
