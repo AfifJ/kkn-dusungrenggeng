@@ -2,6 +2,7 @@
 import { useState } from "react";
 import AdminForm from "@/components/AdminForm";
 import AdminLayout from "../../components/admin/AdminLayout";
+// Remove ProtectedRoute import since it's now in AdminLayout
 import {
   Newspaper,
   Package,
@@ -172,38 +173,9 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-
-        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="border-b border-gray-200 p-6">
-            <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-            <p className="text-gray-600 mt-2">
-              Kelola konten website Dusun Grenggeng
-            </p>
-          </div>
-
-          <div className="p-6">
-            <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200 pb-4">
-              {sections.map((section) => (
-                <button
-                  key={section.key}
-                  onClick={() => setSelectedSection(section.key)}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                    selectedSection === section.key
-                      ? "bg-green-600 text-white shadow-sm"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6">
-              <AdminForm section={selectedSection} />
-            </div>
-          </div>
-        </div> */}
       </div>
     </AdminLayout>
   );
 }
+//   );
+// }

@@ -2,6 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/auth";
+import { signOut } from "firebase/auth";
+import { auth } from "@/firebase/client";
 import { 
   LayoutDashboard, 
   Newspaper, 
@@ -11,8 +14,10 @@ import {
   Menu,
   X,
   LogOut,
-  Settings
+  Settings,
+  User
 } from "lucide-react";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -25,9 +30,21 @@ const navigation = [
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const handleSignOut = async () => {
+    if (!auth) return;
+    
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
 
   return (
-    <div className=" bg-gray-50 h-screen overflow-hidden flex">
+    <ProtectedRoute>
+    <div className="bg-gray-50 h-screen overflow-hidden flex">
       {/* Sidebar */}
       <div className={`fixed h-screen inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
@@ -40,7 +57,7 @@ export default function AdminLayout({ children }) {
           </button>
         </div>
         
-        <nav className="mt-6 px-3">
+        <nav className="mt-6 px-3 flex-1">
           <div className="space-y-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
@@ -67,27 +84,42 @@ export default function AdminLayout({ children }) {
           </div>
         </nav>
 
-        <div className="absolute bottom-0 w-full p-3 border-t border-gray-200">
-          <div className="space-y-1">
-            <Link
-              href="/admin/settings"
-              className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
-            >
-              <Settings className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-              Pengaturan
-            </Link>
-            <Link
-              href="/"
-              className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
-            >
-              <LogOut className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-              Kembali ke Situs
-            </Link>
+        {/* Bottom Section */}
+          <div className="absolute bottom-0 w-full p-3 border-t border-gray-200 bg-white">
+            <div className="space-y-1">
+              <Link
+                href="/admin/settings"
+                className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+              >
+                <Settings className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                Pengaturan
+              </Link>
+              <Link
+                href="/"
+                className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+              >
+                <LogOut className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                Kembali ke Situs
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="group flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 rounded-md hover:bg-red-50 hover:text-red-700"
+              >
+                <LogOut className="mr-3 h-5 w-5 text-red-400 group-hover:text-red-500" />
+                <div className="flex flex-col items-start">
+            <span>Logout</span>
+            {user && (
+              <span className="text-xs text-red-400 group-hover:text-red-500 truncate max-w-[180px]">
+                {user.email}
+              </span>
+            )}
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
+              </div>
 
-      {/* Mobile overlay */}
+              {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/75 lg:hidden"
@@ -98,7 +130,7 @@ export default function AdminLayout({ children }) {
       {/* Main content */}
       <div className="flex-1 lg:ml-0 flex flex-col h-screen">
         {/* Top bar */}
-        <div className="bg-white shadow-sm border-b border-gray-200">
+        {/* <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-6">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -117,7 +149,7 @@ export default function AdminLayout({ children }) {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Page content */}
         <main className="flex-1 p-6 overflow-y-auto">
@@ -125,5 +157,6 @@ export default function AdminLayout({ children }) {
         </main>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
