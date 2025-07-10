@@ -6,7 +6,7 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import {
   Newspaper,
   Package,
-  Image,
+  Image as ImageIcon,
   Calendar,
   Users,
   TrendingUp,
@@ -37,7 +37,7 @@ export default function AdminPage() {
     {
       name: "Foto Galeri",
       value: "48",
-      icon: Image,
+      icon: ImageIcon,
       color: "bg-purple-500",
     },
     {
@@ -161,7 +161,7 @@ export default function AdminPage() {
                 <p className="text-sm text-gray-600">Upload produk baru</p>
               </button>
               <button className="p-4 text-left border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors">
-                <Image className="h-8 w-8 text-purple-500 mb-2" />
+                <ImageIcon className="h-8 w-8 text-purple-500 mb-2" />
                 <h3 className="font-medium text-gray-900">Upload Foto</h3>
                 <p className="text-sm text-gray-600">Tambah ke galeri</p>
               </button>

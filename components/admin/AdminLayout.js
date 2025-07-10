@@ -46,7 +46,7 @@ export default function AdminLayout({ children }) {
     <ProtectedRoute>
     <div className="bg-gray-50 h-screen overflow-hidden flex">
       {/* Sidebar */}
-      <div className={`fixed h-screen inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
+      <div className={`fixed h-screen inset-y-0 left-0 z-50 w-64 bg-white shadow-lg ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:inset-0`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <h1 className="text-xl font-bold text-green-700">Admin Panel</h1>
           <button
