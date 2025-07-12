@@ -11,11 +11,9 @@ import {
   Package, 
   Image, 
   Calendar,
-  Menu,
   X,
   LogOut,
   Settings,
-  User
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
