@@ -26,8 +26,8 @@
     "quill": "^2.0.3",
     "quill-image-drop-module": "^1.0.3",
     "quill-image-resize-module-react": "^3.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-draft-wysiwyg": "^1.15.0",
     "react-hot-toast": "^2.5.2",
     "uuid": "^11.1.0"
