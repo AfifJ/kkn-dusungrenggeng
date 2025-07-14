@@ -31,6 +31,27 @@ export default function HeroSection() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="relative flex h-screen items-center bg-gray-700 pt-16">
+        <div className="container mx-auto px-4 text-center md:text-left">
+          <div className="bg-opacity-90 inline-block max-w-2xl rounded-lg bg-white p-8 shadow-lg">
+            <div className="mb-4 h-12 md:h-16 bg-gray-300 rounded animate-pulse"></div>
+            <div className="mb-6 space-y-2">
+              <div className="h-6 bg-gray-300 rounded animate-pulse"></div>
+              <div className="h-6 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+              <div className="h-6 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+            </div>
+            <div className="flex flex-col justify-center gap-4 sm:flex-row md:justify-start">
+              <div className="h-12 w-48 bg-gray-300 rounded-lg animate-pulse"></div>
+              <div className="h-12 w-40 bg-gray-300 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="relative flex h-screen items-center bg-cover bg-center pt-16"
