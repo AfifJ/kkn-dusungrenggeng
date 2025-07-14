@@ -25,6 +25,7 @@ import {
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/client";
 import { websiteData } from "@/data/website";
+import ImageUploadInput from "./components/ImageUploadInput";
 
 const iconOptions = [
   { name: "Factory", component: Factory, label: "Pabrik" },
@@ -242,22 +243,17 @@ export default function AdminSettings() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Background Image URL
-              </label>
-              <input
-                type="url"
-                value={settings.hero.backgroundImage}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    hero: { ...settings.hero, backgroundImage: e.target.value },
-                  })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
+            <ImageUploadInput
+              label="Background Image URL"
+              placeholder="Pilih gambar background atau masukkan URL..."
+              value={settings.hero.backgroundImage}
+              onChange={(url) =>
+                setSettings({
+                  ...settings,
+                  hero: { ...settings.hero, backgroundImage: url },
+                })
+              }
+            />
           </div>
         )}
 

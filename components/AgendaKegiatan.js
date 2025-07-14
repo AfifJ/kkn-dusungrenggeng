@@ -157,7 +157,7 @@ export default function AgendaKegiatan() {
         ) : agendaGroups.length > 0 ? (
           <div className="space-y-6">
             {agendaGroups.map((group, groupIndex) => (
-              <div key={groupIndex} className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div key={`agenda-group-${groupIndex}`} className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="bg-green-50 px-6 py-4 border-b border-green-100">
                   <h3 className="text-lg font-semibold text-green-800 flex items-center">
                     <Calendar className="h-5 w-5 mr-2" />
@@ -165,8 +165,8 @@ export default function AgendaKegiatan() {
                   </h3>
                 </div>
                 <div className="p-6">
-                  {group.activities.map((activity) => (
-                    <div key={activity.id} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50">
+                  {group.activities.map((activity, activityIndex) => (
+                    <div key={`activity-${activity.id || activityIndex}`} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50">
                       <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                         activity.completed ? 'bg-green-100' : 'bg-blue-100'
                       }`}>

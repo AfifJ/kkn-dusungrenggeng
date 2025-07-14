@@ -80,9 +80,9 @@ export default function ProdukUnggulan() {
           </div>
         ) : produkUnggulan.length > 0 ? (
           <div className="mx-auto max-w-4xl space-y-8">
-            {produkUnggulan.map((item) => (
+            {produkUnggulan.map((item, index) => (
               <div
-                key={item.id}
+                key={item.id || `produk-${index}`}
                 className="flex flex-col md:max-h-64 gap-6 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 transition-shadow duration-300 hover:shadow-md md:flex-row"
               >
                 <div className="h-48 md:h-auto md:w-1/3">

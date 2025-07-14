@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore";
 import { db } from "@/firebase/client";
 
 export default function BeritaTerbaru() {
@@ -14,6 +14,7 @@ export default function BeritaTerbaru() {
       try {
         const q = query(
           collection(db, "berita"),
+          where("status", "==", "published"),
           orderBy("createdAt", "desc"),
           limit(3)
         );
@@ -27,16 +28,15 @@ export default function BeritaTerbaru() {
         setBerita(beritaList);
       } catch (error) {
         console.error("Error fetching berita:", error);
-        // Fallback data jika error
-        setBerita([
-          {
-            id: 1,
-            judul: "Festival Tahu Grenggeng Kembali Digelar",
-            deskripsi: "Festival tahunan tahu tradisional Dusun Grenggeng akan digelar pada 15 Agustus mendatang dengan berbagai lomba dan pameran produk olahan tahu.",
-            tanggal: "12 Juni 2023",
-            gambar: "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-          }
-        ]);
+        // Fallback ke data statis dan filter published
+        try {
+          const { beritaData } = await import("../data/berita");
+          const publishedBerita = beritaData.filter(item => item.status === "published");
+          setBerita(publishedBerita.slice(0, 3));
+        } catch (importError) {
+          console.error("Error importing berita data:", importError);
+          setBerita([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ export default function BeritaTerbaru() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : berita.length > 0 ? (
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
             {berita.map((item) => {
               const generateSlug = (title) => {
@@ -132,6 +132,23 @@ export default function BeritaTerbaru() {
                 </Link>
               );
             })}
+          </div>
+        ) : (
+          <div className="mx-auto max-w-5xl text-center py-12">
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                Belum Ada Berita Terbaru
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Saat ini belum ada berita yang dipublikasikan. Silakan cek kembali nanti.
+              </p>
+              <Link
+                href="/berita"
+                className="inline-block bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition-colors"
+              >
+                Lihat Semua Berita
+              </Link>
+            </div>
           </div>
         )}
 

@@ -46,7 +46,8 @@ export default function BeritaDetailPage() {
           // Fetch related berita
           const relatedQuery = query(
             collection(db, "berita"),
-            where("kategori", "==", foundBerita.kategori)
+            where("kategori", "==", foundBerita.kategori),
+            where("status", "==", "published")
           );
           const relatedSnapshot = await getDocs(relatedQuery);
           const related = relatedSnapshot.docs
@@ -59,6 +60,7 @@ export default function BeritaDetailPage() {
             const fallbackRelated = beritaData
               .filter(b => 
                 b.kategori === foundBerita.kategori && 
+                b.status === "published" &&
                 b.id !== foundBerita.id
               )
               .slice(0, 3);
@@ -80,7 +82,11 @@ export default function BeritaDetailPage() {
         if (foundBerita) {
           setBerita(foundBerita);
           const related = beritaData
-            .filter(b => b.kategori === foundBerita.kategori && b.id !== foundBerita.id)
+            .filter(b => 
+              b.kategori === foundBerita.kategori && 
+              b.status === "published" &&
+              b.id !== foundBerita.id
+            )
             .slice(0, 3);
           setRelatedBerita(related);
         } else {
@@ -419,7 +425,7 @@ export default function BeritaDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   {berita.tags.map((tag, index) => (
                     <span
-                      key={index}
+                      key={`tag-${tag}-${index}`}
                       className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
                     >
                       #{tag}
@@ -441,9 +447,9 @@ export default function BeritaDetailPage() {
                 Berita Terkait
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedBerita.map((item) => (
+                {relatedBerita.map((item, index) => (
                   <article
-                    key={item.id}
+                    key={item.id || `related-${index}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
                   >
                     <Image
