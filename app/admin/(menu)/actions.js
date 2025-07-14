@@ -251,3 +251,74 @@ export const getActivityStats = async () => {
     throw error;
   }
 };
+
+// Get dashboard statistics from all modules
+export const getDashboardStats = async () => {
+  try {
+    const stats = {
+      totalBerita: 0,
+      totalProduk: 0,
+      totalGaleri: 0,
+      totalAgenda: 0,
+      agendaBulanIni: 0,
+    };
+
+    // Get berita count
+    try {
+      const beritaQuery = query(collection(db, "berita"));
+      const beritaSnapshot = await getDocs(beritaQuery);
+      stats.totalBerita = beritaSnapshot.size;
+    } catch (error) {
+      console.error("Error counting berita:", error);
+    }
+
+    // Get produk count
+    try {
+      const produkQuery = query(collection(db, "produk"));
+      const produkSnapshot = await getDocs(produkQuery);
+      stats.totalProduk = produkSnapshot.size;
+    } catch (error) {
+      console.error("Error counting produk:", error);
+    }
+
+    // Get galeri count
+    try {
+      const galeriQuery = query(collection(db, "galeri"));
+      const galeriSnapshot = await getDocs(galeriQuery);
+      stats.totalGaleri = galeriSnapshot.size;
+    } catch (error) {
+      console.error("Error counting galeri:", error);
+    }
+
+    // Get agenda count
+    try {
+      const agendaQuery = query(collection(db, "agenda"));
+      const agendaSnapshot = await getDocs(agendaQuery);
+      stats.totalAgenda = agendaSnapshot.size;
+
+      // Count agenda for current month
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+      const monthStart = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
+      const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+      const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+      const monthEnd = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-01`;
+
+      const monthlyAgendaQuery = query(
+        collection(db, "agenda"),
+        where("tanggal", ">=", monthStart),
+        where("tanggal", "<", monthEnd)
+      );
+      const monthlyAgendaSnapshot = await getDocs(monthlyAgendaQuery);
+      stats.agendaBulanIni = monthlyAgendaSnapshot.size;
+    } catch (error) {
+      console.error("Error counting agenda:", error);
+    }
+
+    return stats;
+  } catch (error) {
+    console.error("Error getting dashboard statistics:", error);
+    throw error;
+  }
+};

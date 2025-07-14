@@ -1,6 +1,9 @@
 "use client";
 import { Factory, Users, Sprout, TrendingUp, Home, Building } from "lucide-react";
 import { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/client";
+import { websiteData } from "@/data/website";
 
 const iconMap = {
   Factory,
@@ -12,13 +15,8 @@ const iconMap = {
 };
 
 export default function StatistikSection() {
-  const [settings, setSettings] = useState({
-    statistics: [],
-    jelajahi: {
-      title: "Jelajahi Grenggeng",
-      description: "Grenggeng adalah sebuah dusun yang terletak di Candimulyo, Sidomulyo, Magelang, Jawa Tengah."
-    }
-  });
+  const [settings, setSettings] = useState(websiteData);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSettings();
@@ -26,13 +24,19 @@ export default function StatistikSection() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/admin?section=settings');
-      const data = await response.json();
-      if (data && Object.keys(data).length > 0) {
-        setSettings(data);
+      const docRef = doc(db, "settings", "website");
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        setSettings(docSnap.data());
+      } else {
+        setSettings(websiteData);
       }
     } catch (error) {
-      console.error('Error fetching settings:', error);
+      console.error("Error fetching settings:", error);
+      setSettings(websiteData);
+    } finally {
+      setLoading(false);
     }
   };
 

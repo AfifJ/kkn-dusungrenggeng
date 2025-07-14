@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { X } from "lucide-react";
 import { useAuth } from "@/context/auth";
+import Dialog from "@/components/admin/Dialog";
+import { useDialog } from "@/hooks/useDialog";
 import {
   addGaleriWithImage,
   updateGaleriWithImage,
@@ -10,6 +13,7 @@ import {
 
 export default function GaleriForm({ galeri, onSuccess, onCancel }) {
   const { user } = useAuth();
+  const { dialog, closeDialog, alert } = useDialog();
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -84,12 +88,12 @@ export default function GaleriForm({ galeri, onSuccess, onCancel }) {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 50 * 1024 * 1024) {
-        alert('Ukuran file terlalu besar. Maksimal 50MB.');
+        alert('Ukuran file terlalu besar. Maksimal 50MB.', 'error');
         return;
       }
 
       if (!file.type.startsWith('image/')) {
-        alert('File harus berupa gambar.');
+        alert('File harus berupa gambar.', 'error');
         return;
       }
 
@@ -109,7 +113,7 @@ export default function GaleriForm({ galeri, onSuccess, onCancel }) {
     e.preventDefault();
     
     if (!formData.judul || !formData.deskripsi || !formData.kategori || !formData.fotografer) {
-      alert('Harap isi semua field yang wajib diisi.');
+      alert('Harap isi semua field yang wajib diisi.', 'warning');
       return;
     }
 
@@ -134,7 +138,7 @@ export default function GaleriForm({ galeri, onSuccess, onCancel }) {
       onSuccess();
     } catch (error) {
       console.error('Error saving galeri:', error);
-      alert('Gagal menyimpan foto galeri. Silakan coba lagi.');
+      alert('Gagal menyimpan foto galeri. Silakan coba lagi.', 'error');
     } finally {
       setLoading(false);
     }
@@ -279,9 +283,11 @@ export default function GaleriForm({ galeri, onSuccess, onCancel }) {
               </p>
               {imagePreview && (
                 <div className="mt-3">
-                  <img
+                  <Image
                     src={imagePreview}
                     alt="Preview"
+                    width={160}
+                    height={160}
                     className="h-40 w-auto object-cover rounded-lg border border-gray-200"
                   />
                 </div>
@@ -307,6 +313,19 @@ export default function GaleriForm({ galeri, onSuccess, onCancel }) {
           </form>
         </div>
       </div>
+      
+      {/* Dialog Component */}
+      <Dialog
+        isOpen={dialog.isOpen}
+        onClose={closeDialog}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        showCancelButton={dialog.showCancelButton}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 }

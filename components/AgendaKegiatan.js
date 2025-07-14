@@ -1,81 +1,143 @@
+"use client";
+import { useState, useEffect } from "react";
 import { Calendar, CheckCircle, Clock, MapPin } from "lucide-react";
 import Link from "next/link";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { db } from "@/firebase/client";
+import { agendaData } from "@/data/agenda";
 
 export default function AgendaKegiatan() {
-  // Data agenda kelompok berdasarkan tanggal
-  const agendaGroups = [
-    {
-      date: "Senin, 15 Agustus 2023",
-      activities: [
-        {
-          id: 1,
-          time: "05:00 - 07:00",
-          title: "Pembuatan Tahu Batch Pagi",
-          description:
-            "Proses pembuatan tahu tradisional dengan bahan baku kedelai pilihan",
-          location: "Sentra Produksi Tahu Dusun Grenggeng",
-          completed: true,
-        },
-        {
-          id: 2,
-          time: "08:00 - 10:00",
-          title: "Pengepakan dan Distribusi",
-          description:
-            "Pengepakan tahu untuk dikirim ke pasar tradisional sekitar",
-          location: "Gudang Pengemasan Dusun",
-          completed: true,
-        },
-        {
-          id: 3,
-          time: "13:00 - 15:00",
-          title: "Pelatihan Pembuatan Tahu Variasi",
-          description:
-            "Pelatihan untuk ibu-ibu PKK membuat variasi olahan tahu",
-          location: "Balai Dusun Grenggeng",
-          completed: false,
-        },
-      ],
-    },
-    {
-      date: "Selasa, 16 Agustus 2023",
-      activities: [
-        {
-          id: 4,
-          time: "06:00 - 09:00",
-          title: "Panen Padi Kelompok Tani",
-          description: "Panen raya di sawah bagian timur dusun",
-          location: "Sawah Blok Timur Dusun",
-          completed: false,
-        },
-        {
-          id: 5,
-          time: "10:00 - 12:00",
-          title: "Gotong Royong Membersihkan Selokan",
-          description: "Kegiatan kerja bakti membersihkan saluran air dusun",
-          location: "Selokan Jalan Utama",
-          completed: false,
-        },
-      ],
-    },
-  ];
+  const [agendaGroups, setAgendaGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Gabungkan semua aktivitas dari berbagai tanggal
-  const allActivities = agendaGroups.flatMap((group) =>
-    group.activities.map((activity) => ({
-      ...activity,
-      date: group.date,
-    }))
-  );
+  useEffect(() => {
+    const fetchAgenda = async () => {
+      try {
+        const q = query(
+          collection(db, "agenda"),
+          orderBy("tanggal", "asc"),
+          limit(5)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          // Jika tidak ada data di Firebase, gunakan data statis
+          const today = new Date();
+          const fallbackAgenda = agendaData.slice(0, 3).map((item, index) => {
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + (index + 1) * 3); // 3, 6, 9 hari ke depan
+            return {
+              ...item,
+              tanggal: futureDate.toISOString().split('T')[0]
+            };
+          });
+          
+          const groupedByDate = fallbackAgenda.reduce((acc, item) => {
+            const dateKey = item.tanggal;
+            if (!acc[dateKey]) {
+              acc[dateKey] = {
+                date: new Date(item.tanggal).toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  year: "numeric", 
+                  month: "long",
+                  day: "numeric"
+                }),
+                activities: [],
+              };
+            }
+            acc[dateKey].activities.push({
+              id: item.id,
+              time: item.waktu,
+              title: item.judul,
+              description: item.deskripsi,
+              location: item.tempat,
+              completed: item.status === "selesai"
+            });
+            return acc;
+          }, {});
+          
+          setAgendaGroups(Object.values(groupedByDate));
+        } else {
+          const agendaList = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
 
-  // Filter hanya yang belum selesai
-  const pendingActivities = allActivities.filter(
-    (activity) => !activity.completed
-  );
+          const groupedByDate = agendaList.reduce((acc, item) => {
+            const dateKey = item.tanggal;
+            if (!acc[dateKey]) {
+              acc[dateKey] = {
+                date: new Date(item.tanggal).toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  year: "numeric", 
+                  month: "long",
+                  day: "numeric"
+                }),
+                activities: [],
+              };
+            }
+            acc[dateKey].activities.push({
+              id: item.id,
+              time: item.waktu,
+              title: item.judul,
+              description: item.deskripsi,
+              location: item.tempat,
+              completed: item.status === "selesai"
+            });
+            return acc;
+          }, {});
+
+          setAgendaGroups(Object.values(groupedByDate).slice(0, 3));
+        }
+      } catch (error) {
+        console.error("Error fetching agenda:", error);
+        // Fallback ke data statis jika terjadi error
+        const today = new Date();
+        const fallbackAgenda = agendaData.slice(0, 3).map((item, index) => {
+          const futureDate = new Date(today);
+          futureDate.setDate(today.getDate() + (index + 1) * 3);
+          return {
+            ...item,
+            tanggal: futureDate.toISOString().split('T')[0]
+          };
+        });
+        
+        const groupedByDate = fallbackAgenda.reduce((acc, item) => {
+          const dateKey = item.tanggal;
+          if (!acc[dateKey]) {
+            acc[dateKey] = {
+              date: new Date(item.tanggal).toLocaleDateString("id-ID", {
+                weekday: "long",
+                year: "numeric", 
+                month: "long",
+                day: "numeric"
+              }),
+              activities: [],
+            };
+          }
+          acc[dateKey].activities.push({
+            id: item.id,
+            time: item.waktu,
+            title: item.judul,
+            description: item.deskripsi,
+            location: item.tempat,
+            completed: item.status === "selesai"
+          });
+          return acc;
+        }, {});
+        
+        setAgendaGroups(Object.values(groupedByDate));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgenda();
+  }, []);
 
   return (
     <section className="bg-gray-50 py-16">
       <div className="container mx-auto max-w-3xl px-4">
-        {/* Header Section */}
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Agenda Kegiatan
@@ -85,80 +147,71 @@ export default function AgendaKegiatan() {
           </p>
         </div>
 
-        {/* Agenda Content */}
-        {pendingActivities.length > 0 ? (
-          <div className="bg-white rounded-2xl max-w-lg mx-auto shadow-sm border border-gray-100 overflow-hidden">
-            {/* Activities List */}
-            <div className="p-6">
-              <div className="space-y-0">
-                {pendingActivities.map((activity, index) => (
-                  <div key={activity.id} className="relative pb-6">
-                    {/* Timeline Line */}
-                    {index < pendingActivities.length - 1 && (
-                      <div className="absolute left-5 top-10 w-0.5 h-full bg-gray-200"></div>
-                    )}
-
-                    <div className="flex gap-4">
-                      {/* Status Indicator */}
-                      <div className="flex-shrink-0 relative">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border-2 border-gray-300">
-                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
-                        </div>
+        {loading ? (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto mb-4"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
+            </div>
+          </div>
+        ) : agendaGroups.length > 0 ? (
+          <div className="space-y-6">
+            {agendaGroups.map((group, groupIndex) => (
+              <div key={groupIndex} className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-green-50 px-6 py-4 border-b border-green-100">
+                  <h3 className="text-lg font-semibold text-green-800 flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    {group.date}
+                  </h3>
+                </div>
+                <div className="p-6">
+                  {group.activities.map((activity) => (
+                    <div key={activity.id} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50">
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                        activity.completed ? 'bg-green-100' : 'bg-blue-100'
+                      }`}>
+                        {activity.completed ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <Clock className="h-5 w-5 text-blue-600" />
+                        )}
                       </div>
-
-                      {/* Activity Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="mb-3">
-                          <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-sm font-semibold text-gray-900">
                             {activity.title}
                           </h4>
-                          <p className="text-gray-600 text-sm leading-relaxed mb-2">
-                            {activity.description}
-                          </p>
-                          <div className="flex items-center gap-2 text-gray-500 mb-3">
-                            <MapPin size={14} />
-                            <span className="text-sm">{activity.location}</span>
-                          </div>
+                          <span className="text-sm text-gray-500">
+                            {activity.time}
+                          </span>
                         </div>
-
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1 text-blue-600">
-                            <Calendar size={14} />
-                            <span className="font-medium">{activity.date}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-gray-600">
-                            <Clock size={14} />
-                            <span className="font-medium">{activity.time}</span>
-                          </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          {activity.description}
+                        </p>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {activity.location}
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle size={32} className="text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Semua Kegiatan Selesai
-            </h3>
-            <p className="text-gray-600">
-              Tidak ada kegiatan yang tersisa untuk hari ini
-            </p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">Tidak ada agenda kegiatan untuk saat ini</p>
           </div>
         )}
 
-        {/* Action Section */}
-        <div className="text-center mt-8">
+        <div className="mt-8 text-center">
           <Link
             href="/kalender"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors duration-200"
+            className="inline-flex items-center rounded-lg bg-green-700 px-6 py-3 font-medium text-white shadow-sm transition-colors hover:bg-green-800"
           >
-            <Calendar size={20} />
+            <Calendar className="mr-2 h-5 w-5" />
             Lihat Kalender Lengkap
           </Link>
         </div>

@@ -1,7 +1,7 @@
 export const agendaData = [
   {
-    id: 1,
     judul: "Rapat RT Bulanan Februari",
+    slug: "rapat-rt-bulanan-februari",
     deskripsi: "Rapat rutin bulanan untuk membahas program kerja RT dan evaluasi kegiatan bulan sebelumnya.",
     tanggal: "2024-02-15",
     waktu: "19:00",
@@ -19,8 +19,8 @@ export const agendaData = [
     ]
   },
   {
-    id: 2,
     judul: "Pelatihan Teknologi Pertanian",
+    slug: "pelatihan-teknologi-pertanian",
     deskripsi: "Pelatihan lanjutan tentang teknologi pertanian modern dan sistem irigasi tetes untuk meningkatkan produktivitas.",
     tanggal: "2024-02-20",
     waktu: "08:00",
@@ -38,7 +38,6 @@ export const agendaData = [
     ]
   },
   {
-    id: 3,
     judul: "Festival Tahu Grenggeng",
     deskripsi: "Acara tahunan untuk mempromosikan produk tahu khas Grenggeng dan meningkatkan ekonomi lokal.",
     tanggal: "2024-03-10",
@@ -58,7 +57,6 @@ export const agendaData = [
     ]
   },
   {
-    id: 4,
     judul: "Gotong Royong Pembersihan Selokan",
     deskripsi: "Kegiatan gotong royong membersihkan selokan desa untuk mencegah banjir saat musim hujan.",
     tanggal: "2024-02-25",
@@ -77,7 +75,6 @@ export const agendaData = [
     ]
   },
   {
-    id: 5,
     judul: "Penyuluhan Kesehatan Ibu dan Anak",
     deskripsi: "Kegiatan penyuluhan kesehatan khusus untuk ibu dan anak dengan fokus pada gizi dan pencegahan penyakit.",
     tanggal: "2024-03-05",

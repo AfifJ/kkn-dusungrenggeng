@@ -1,17 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/client";
+import { websiteData } from "@/data/website";
 
 export default function HeroSection() {
-  const [settings, setSettings] = useState({
-    hero: {
-      title: "Selamat Datang di Dusun Grenggeng",
-      subtitle:
-        "Desa penghasil tahu dan hasil tani berkualitas dengan keindahan alam yang mempesona. Kami menjaga tradisi dengan cita rasa yang autentik.",
-      backgroundImage:
-        "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    },
-  });
+  const [settings, setSettings] = useState(websiteData);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSettings();
@@ -19,13 +15,19 @@ export default function HeroSection() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch("/api/admin?section=settings");
-      const data = await response.json();
-      if (data && Object.keys(data).length > 0) {
-        setSettings(data);
+      const docRef = doc(db, "settings", "website");
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        setSettings(docSnap.data());
+      } else {
+        setSettings(websiteData);
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
+      setSettings(websiteData);
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -1,27 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-// useAuth
-// import { useAuth } from "@";
 import {
   getBerita,
   deleteBeritaWithImage,
   searchBerita,
 } from "./actions";
-import BeritaForm from "./components/BeritaForm";
 import DeleteModal from "./components/DeleteModal";
+import Dialog from "@/components/admin/Dialog";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/context/auth";
+import { useDialog } from "@/hooks/useDialog";
+import { getPreviewText, getReadingTime } from "./utils/textUtils";
 
 export default function AdminBeritaPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const { dialog, closeDialog, confirm } = useDialog();
   const [berita, setBerita] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [editingBerita, setEditingBerita] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ show: false, berita: null });
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "table"
 
@@ -58,26 +59,36 @@ export default function AdminBeritaPage() {
   };
 
   const handleEdit = (beritaItem) => {
-    setEditingBerita(beritaItem);
-    setShowForm(true);
+    router.push(`/admin/berita/${beritaItem.id}`);
   };
 
-  const handleDelete = async (beritaItem) => {
+  const handleDelete = (id, title) => {
+    confirm(
+      `Apakah Anda yakin ingin menghapus berita "${title}"?`,
+      () => confirmDelete(id),
+      {
+        title: "Hapus Berita",
+        type: "error",
+        confirmText: "Hapus"
+      }
+    );
+  };
+
+  const confirmDelete = async (id) => {
     try {
-      await deleteBeritaWithImage(beritaItem.id, beritaItem.judul, user.email);
+      setLoading(true);
+      const beritaItem = berita.find(item => item.id === id);
+      await deleteBeritaWithImage(id, beritaItem?.judul || "Berita", user.email);
       toast.success("Berita berhasil dihapus");
       setDeleteModal({ show: false, berita: null });
       fetchBerita();
     } catch (error) {
       console.error("Error deleting berita:", error);
       toast.error("Gagal menghapus berita");
+    } finally {
+      setLoading(false);
+      closeDialog();
     }
-  };
-
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setEditingBerita(null);
-    fetchBerita();
   };
 
   const formatDate = (dateString) => {
@@ -126,7 +137,7 @@ export default function AdminBeritaPage() {
           </div>
           
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => router.push('/admin/berita/tambah')}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Tambah Berita
@@ -243,9 +254,16 @@ export default function AdminBeritaPage() {
 
                 {/* Description/Content preview */}
                 {item.konten && (
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                    {item.konten.replace(/<[^>]*>/g, '').substring(0, 120)}...
-                  </p>
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 line-clamp-3">
+                      {getPreviewText(item.konten, 120)}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-gray-400">
+                        {getReadingTime(item.konten)} min read
+                      </span>
+                    </div>
+                  </div>
                 )}
 
                 {/* Action Buttons */}
@@ -257,7 +275,7 @@ export default function AdminBeritaPage() {
                     Edit
                   </button>
                   <button
-                    onClick={() => setDeleteModal({ show: true, berita: item })}
+                    onClick={() => handleDelete(item.id, item.judul)}
                     className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
                   >
                     Hapus
@@ -352,7 +370,7 @@ export default function AdminBeritaPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => setDeleteModal({ show: true, berita: item })}
+                        onClick={() => handleDelete(item.id, item.judul)}
                         className="text-red-600 hover:text-red-900 transition-colors"
                       >
                         Hapus
@@ -375,18 +393,6 @@ export default function AdminBeritaPage() {
         </div>
       )}
 
-      {/* Form Modal */}
-      {showForm && (
-        <BeritaForm
-          berita={editingBerita}
-          onSuccess={handleFormSuccess}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingBerita(null);
-          }}
-        />
-      )}
-
       {/* Delete Modal */}
       {deleteModal.show && (
         <DeleteModal
@@ -395,6 +401,19 @@ export default function AdminBeritaPage() {
           onCancel={() => setDeleteModal({ show: false, berita: null })}
         />
       )}
+
+      {/* Dialog Component */}
+      <Dialog
+        isOpen={dialog.isOpen}
+        onClose={closeDialog}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        showCancelButton={dialog.showCancelButton}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 }

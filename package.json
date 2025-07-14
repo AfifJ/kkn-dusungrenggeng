@@ -10,14 +10,27 @@
   },
   "dependencies": {
     "@imagekit/next": "^2.1.2",
+    "@uiw/react-md-editor": "^4.0.7",
+    "@uiw/react-textarea-code-editor": "^3.1.1",
+    "draft-js": "^0.11.7",
+    "draft-js-export-html": "^1.4.1",
+    "draft-js-import-html": "^1.4.1",
+    "draftjs-to-html": "^0.9.1",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.4.0",
+    "html-to-draftjs": "^1.5.0",
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
     "next-cloudinary": "^6.16.0",
+    "prop-types": "^15.8.1",
+    "quill": "^2.0.3",
+    "quill-image-drop-module": "^1.0.3",
+    "quill-image-resize-module-react": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.5.2"
+    "react-draft-wysiwyg": "^1.15.0",
+    "react-hot-toast": "^2.5.2",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

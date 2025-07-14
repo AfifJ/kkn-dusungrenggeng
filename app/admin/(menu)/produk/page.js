@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/auth";
+import { useDialog } from "@/hooks/useDialog";
 import Image from "next/image";
 import {
   getProduk,
@@ -10,10 +11,23 @@ import {
 } from "./actions";
 import ProdukForm from "./components/ProdukForm";
 import DeleteModal from "./components/DeleteModal";
+import Dialog from "@/components/admin/Dialog";
 import { toast } from "react-hot-toast";
+
+// Helper function to format contact information
+const formatKontak = (kontak) => {
+  if (typeof kontak === 'object' && kontak !== null) {
+    if (kontak.telepon) {
+      return `${kontak.nama || ''} - ${kontak.telepon}`;
+    }
+    return `${kontak.nama || ''} ${kontak.telepon || ''} ${kontak.alamat || ''}`.trim();
+  }
+  return kontak || '';
+};
 
 export default function AdminProdukPage() {
   const { user } = useAuth();
+  const { dialog, closeDialog, confirm } = useDialog();
   const [produk, setProduk] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,15 +74,32 @@ export default function AdminProdukPage() {
     setShowForm(true);
   };
 
-  const handleDelete = async (produkItem) => {
+  const handleDelete = (id, title) => {
+    confirm(
+      `Apakah Anda yakin ingin menghapus produk "${title}"?`,
+      () => confirmDelete(id),
+      {
+        title: "Hapus Produk",
+        type: "error",
+        confirmText: "Hapus"
+      }
+    );
+  };
+
+  const confirmDelete = async (id) => {
     try {
-      await deleteProdukWithImage(produkItem.id, produkItem.nama, user.email);
+      setLoading(true);
+      const produkItem = produk.find(item => item.id === id);
+      await deleteProdukWithImage(id, produkItem?.nama || "Produk", user.email);
       toast.success("Produk berhasil dihapus");
       setDeleteModal({ show: false, produk: null });
       fetchProduk();
     } catch (error) {
       console.error("Error deleting produk:", error);
       toast.error("Gagal menghapus produk");
+    } finally {
+      setLoading(false);
+      closeDialog();
     }
   };
 
@@ -292,7 +323,7 @@ export default function AdminProdukPage() {
                 
                 <div className="text-xs text-gray-400 border-t pt-2">
                   <div className="font-medium">{item.penjual}</div>
-                  <div>{item.kontak}</div>
+                  <div>{formatKontak(item.kontak)}</div>
                 </div>
               </div>
             </div>
@@ -384,7 +415,7 @@ export default function AdminProdukPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{item.penjual}</div>
-                      <div className="text-sm text-gray-500">{item.kontak}</div>
+                      <div className="text-sm text-gray-500">{formatKontak(item.kontak)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatDate(item.createdAt)}
@@ -397,7 +428,7 @@ export default function AdminProdukPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => setDeleteModal({ show: true, produk: item })}
+                        onClick={() => handleDelete(item.id, item.nama)}
                         className="text-red-600 hover:text-red-900 transition-colors"
                       >
                         Hapus
@@ -440,6 +471,19 @@ export default function AdminProdukPage() {
           onCancel={() => setDeleteModal({ show: false, produk: null })}
         />
       )}
+
+      {/* Dialog Component */}
+      <Dialog
+        isOpen={dialog.isOpen}
+        onClose={closeDialog}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        showCancelButton={dialog.showCancelButton}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 }

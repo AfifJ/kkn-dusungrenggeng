@@ -1,27 +1,49 @@
+"use client";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { db } from "@/firebase/client";
 
 export default function BeritaTerbaru() {
-  const berita = [
-    {
-      id: 1,
-      title: "Festival Tahu Grenggeng Kembali Digelar",
-      excerpt:
-        "Festival tahunan tahu tradisional Dusun Grenggeng akan digelar pada 15 Agustus mendatang dengan berbagai lomba dan pameran produk olahan tahu.",
-      date: "12 Juni 2023",
-      image:
-        "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    },
-    {
-      id: 2,
-      title: "Panen Raya Komoditas Pertanian",
-      excerpt:
-        "Masyarakat Dusun Grenggeng bersyukur atas hasil panen yang melimpah tahun ini, dengan peningkatan produksi hingga 20% dibanding tahun sebelumnya.",
-      date: "5 Juni 2023",
-      image:
-        "https://images.unsplash.com/photo-1464226184884-fa280b87c399?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-    },
-  ];
+  const [berita, setBerita] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBerita = async () => {
+      try {
+        const q = query(
+          collection(db, "berita"),
+          orderBy("createdAt", "desc"),
+          limit(3)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        const beritaList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setBerita(beritaList);
+      } catch (error) {
+        console.error("Error fetching berita:", error);
+        // Fallback data jika error
+        setBerita([
+          {
+            id: 1,
+            judul: "Festival Tahu Grenggeng Kembali Digelar",
+            deskripsi: "Festival tahunan tahu tradisional Dusun Grenggeng akan digelar pada 15 Agustus mendatang dengan berbagai lomba dan pameran produk olahan tahu.",
+            tanggal: "12 Juni 2023",
+            gambar: "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBerita();
+  }, []);
 
   return (
     <section className="bg-gray-50 py-16">
@@ -37,56 +59,81 @@ export default function BeritaTerbaru() {
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
-          {berita.map((item) => (
-            <div
-              key={item.id}
-              className="overflow-hidden rounded-lg bg-white shadow-md transition-shadow duration-300 hover:shadow-lg"
-            >
-              <div className="h-48 overflow-hidden">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  width={500}
-                  height={300}
-                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-semibold tracking-wider text-green-600 uppercase">
-                    Berita
-                  </span>
-                  <span className="text-xs text-gray-500">{item.date}</span>
+        {loading ? (
+          // Loading skeleton
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-lg bg-white shadow-md">
+                <div className="h-48 bg-gray-200 animate-pulse"></div>
+                <div className="p-6">
+                  <div className="h-4 bg-gray-200 rounded mb-4 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                 </div>
-                <h3 className="mb-3 text-xl font-bold text-gray-800 transition-colors hover:text-green-700">
-                  {item.title}
-                </h3>
-                <p className="mb-4 text-gray-600">{item.excerpt}</p>
-                <Link
-                  href="/berita"
-                  className="inline-flex items-center font-medium text-green-600 transition-colors hover:text-green-800"
-                >
-                  Baca selengkapnya
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="ml-1 h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </Link>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
+            {berita.map((item) => {
+              const generateSlug = (title) => {
+                return title
+                  .toLowerCase()
+                  .replace(/\s+/g, '-')
+                  .replace(/[^\w\-]+/g, '');
+              };
+
+              return (
+                <Link
+                  key={item.id}
+                  href={`/berita/${item.slug || generateSlug(item.judul || item.title)}`}
+                  className="group"
+                >
+                  <div className="overflow-hidden rounded-lg bg-white shadow-md transition-shadow duration-300 group-hover:shadow-lg">
+                    <div className="h-48 overflow-hidden">
+                      <Image
+                        src={item.gambar || item.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"}
+                        alt={item.judul || item.title}
+                        width={500}
+                        height={300}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-xs font-semibold tracking-wider text-green-600 uppercase">
+                          {item.kategori || 'Berita'}
+                        </span>
+                        <span className="text-xs text-gray-500">{item.tanggal || item.date}</span>
+                      </div>
+                      <h3 className="mb-3 text-xl font-bold text-gray-800 transition-colors group-hover:text-green-700">
+                        {item.judul || item.title}
+                      </h3>
+                      <p className="mb-4 text-gray-600">{item.ringkasan || item.deskripsi || item.excerpt}</p>
+                      <span className="inline-flex items-center font-medium text-green-600 transition-colors group-hover:text-green-800">
+                        Baca selengkapnya
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="ml-1 h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-10 text-center">
           <Link

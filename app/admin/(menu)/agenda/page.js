@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   Edit,
@@ -9,60 +9,94 @@ import {
   MapPin,
   CheckCircle,
   Circle,
+  Search,
+  Filter,
 } from "lucide-react";
+import { useAuth } from "@/context/auth";
+import { 
+  getAgenda, 
+  addAgenda, 
+  updateAgenda, 
+  deleteAgenda, 
+  updateAgendaStatus,
+  searchAgenda
+} from "./actions";
+import AgendaForm from "./components/AgendaForm";
+import DeleteModal from "./components/DeleteModal";
+import Dialog from "@/components/admin/Dialog";
+import { useDialog } from "@/hooks/useDialog";
 import { agendaData } from "@/data/agenda";
+import { toast } from "react-hot-toast";
 
 export default function AdminAgenda() {
+  const { user } = useAuth();
+  const { dialog, closeDialog, confirm, alert } = useDialog();
+  
   const [agenda, setAgenda] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ show: false, item: null });
+  const [formLoading, setFormLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
-  useEffect(() => {
-    fetchAgenda();
-  }, []);
-
-  const fetchAgenda = async () => {
+  const fetchAgenda = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin?section=kalender");
-      const data = await response.json();
-      // Check if data is valid and not empty
-      if (Array.isArray(data) && data.length > 0) {
-        setAgenda(data);
+      setLoading(true);
+      let agendaList;
+      
+      if (searchTerm || selectedCategory) {
+        agendaList = await searchAgenda(searchTerm, selectedCategory);
       } else {
-        // Use fallback data if API returns empty or invalid data
-        const groupedByDate = agendaData.reduce((acc, item) => {
-          const dateKey = item.tanggal;
-          if (!acc[dateKey]) {
-            acc[dateKey] = {
-              date: item.tanggal,
-              dayName: new Date(item.tanggal).toLocaleDateString("id-ID", {
-                weekday: "long",
-              }),
-              activities: [],
-            };
-          }
-          acc[dateKey].activities.push({
-            id: item.id,
-            time: item.waktu,
-            title: item.judul,
-            description: item.deskripsi,
-            location: item.tempat,
-            completed: item.status === "completed",
-            category: item.kategori,
-          });
-          return acc;
-        }, {});
-
-        // Convert to array and sort by date
-        const transformedData = Object.values(groupedByDate).sort(
-          (a, b) => new Date(a.date) - new Date(b.date)
-        );
-        setAgenda(transformedData);
+        agendaList = await getAgenda();
       }
+      
+      if (agendaList.length === 0) {
+        setAgenda([]);
+        setLoading(false);
+        return;
+      }
+      
+      // Group by date
+      const groupedByDate = agendaList.reduce((acc, item) => {
+        const dateKey = item.tanggal;
+        if (!acc[dateKey]) {
+          acc[dateKey] = {
+            date: item.tanggal,
+            dayName: new Date(item.tanggal).toLocaleDateString("id-ID", {
+              weekday: "long",
+            }),
+            activities: [],
+          };
+        }
+        acc[dateKey].activities.push({
+          id: item.id,
+          time: item.waktu,
+          title: item.judul,
+          description: item.deskripsi,
+          location: item.tempat,
+          completed: item.status === "completed",
+          category: item.kategori,
+          penyelenggara: item.penyelenggara,
+          peserta: item.peserta,
+          prioritas: item.prioritas,
+          agenda: item.agenda,
+          status: item.status,
+          originalData: item
+        });
+        return acc;
+      }, {});
+
+      // Convert to array and sort by date
+      const transformedData = Object.values(groupedByDate).sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      );
+      setAgenda(transformedData);
     } catch (error) {
       console.error("Error fetching agenda:", error);
-      // Transform agendaData to match expected format on error
+      toast.error("Gagal memuat data agenda");
+      // Use fallback data on error
       const groupedByDate = agendaData.reduce((acc, item) => {
         const dateKey = item.tanggal;
         if (!acc[dateKey]) {
@@ -86,7 +120,6 @@ export default function AdminAgenda() {
         return acc;
       }, {});
 
-      // Convert to array and sort by date
       const transformedData = Object.values(groupedByDate).sort(
         (a, b) => new Date(a.date) - new Date(b.date)
       );
@@ -94,80 +127,128 @@ export default function AdminAgenda() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, selectedCategory]);
+
+  useEffect(() => {
+    fetchAgenda();
+  }, [fetchAgenda]);
 
   const handleDelete = async (dayDate, activityId) => {
-    if (confirm("Yakin ingin menghapus agenda ini?")) {
-      try {
-        // Ensure agenda is an array before mapping
-        if (!Array.isArray(agenda)) return;
+    const activity = agenda
+      .find(day => day.date === dayDate)
+      ?.activities?.find(act => act.id === activityId);
+    
+    if (activity) {
+      confirm(
+        `Apakah Anda yakin ingin menghapus agenda "${activity.title}"?`,
+        () => confirmDelete(activity),
+        {
+          title: "Hapus Agenda",
+          type: "error",
+          confirmText: "Hapus"
+        }
+      );
+    }
+  };
 
-        // Update the agenda by removing the specific activity
-        const updatedAgenda = agenda
-          .map((day) => {
-            if (day.date === dayDate) {
-              return {
-                ...day,
-                activities: day.activities.filter(
-                  (activity) => activity.id !== activityId
-                ),
-              };
-            }
-            return day;
-          })
-          .filter((day) => day.activities.length > 0); // Remove days with no activities
-
-        setAgenda(updatedAgenda);
-
-        // In a real app, you would also update the backend
-        // await fetch(`/api/admin?section=kalender&id=${activityId}`, { method: 'DELETE' });
-      } catch (error) {
-        console.error("Error deleting agenda:", error);
-      }
+  const confirmDelete = async (activity) => {
+    if (!user?.email) {
+      toast.error("User tidak terautentikasi");
+      return;
+    }
+    
+    try {
+      setFormLoading(true);
+      await deleteAgenda(activity.id, activity.title, user.email);
+      await fetchAgenda();
+      toast.success("Agenda berhasil dihapus");
+    } catch (error) {
+      console.error("Error deleting agenda:", error);
+      toast.error("Gagal menghapus agenda");
+    } finally {
+      setFormLoading(false);
     }
   };
 
   const toggleComplete = async (dayDate, activityId) => {
+    if (!user?.email) {
+      toast.error("User tidak terautentikasi");
+      return;
+    }
+    
     try {
-      // Ensure agenda is an array before mapping
-      if (!Array.isArray(agenda)) return;
-
-      const updatedAgenda = agenda.map((day) => {
-        if (day.date === dayDate) {
-          return {
-            ...day,
-            activities: day.activities.map((activity) => {
-              if (activity.id === activityId) {
-                return { ...activity, completed: !activity.completed };
-              }
-              return activity;
-            }),
-          };
-        }
-        return day;
-      });
-
-      setAgenda(updatedAgenda);
-
-      // In a real app, you would also update the backend
-      // await fetch('/api/admin', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ section: 'kalender', data: updatedAgenda })
-      // });
+      const activity = agenda
+        .find(day => day.date === dayDate)
+        ?.activities?.find(act => act.id === activityId);
+        
+      if (!activity) return;
+      
+      const newStatus = activity.completed ? "scheduled" : "completed";
+      await updateAgendaStatus(activity.id, newStatus, user.email);
+      await fetchAgenda();
+      
+      const statusText = newStatus === "completed" ? "diselesaikan" : "dijadwalkan kembali";
+      toast.success(`Agenda berhasil ${statusText}`);
     } catch (error) {
-      console.error("Error updating agenda:", error);
+      console.error("Error updating agenda status:", error);
+      toast.error("Gagal mengubah status agenda");
+    }
+  };
+
+  const handleFormSubmit = async (formData) => {
+    if (!user?.email) {
+      toast.error("User tidak terautentikasi");
+      return;
+    }
+
+    try {
+      setFormLoading(true);
+      
+      if (editingItem) {
+        await updateAgenda(editingItem.id, formData, user.email);
+        toast.success("Agenda berhasil diperbarui");
+      } else {
+        await addAgenda(formData, user.email);
+        toast.success("Agenda berhasil ditambahkan");
+      }
+      
+      setShowForm(false);
+      setEditingItem(null);
+      await fetchAgenda();
+    } catch (error) {
+      console.error("Error saving agenda:", error);
+      const errorMessage = editingItem ? "Gagal memperbarui agenda" : "Gagal menambahkan agenda";
+      toast.error(errorMessage);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleEdit = (dayDate, activityId) => {
+    const activity = agenda
+      .find(day => day.date === dayDate)
+      ?.activities?.find(act => act.id === activityId);
+    
+    if (activity && activity.originalData) {
+      setEditingItem(activity.originalData);
+      setShowForm(true);
     }
   };
 
   const getCategoryColor = (category) => {
     const colors = {
-      Produksi: "bg-blue-100 text-blue-800",
-      Distribusi: "bg-green-100 text-green-800",
-      Pertanian: "bg-yellow-100 text-yellow-800",
-      Lingkungan: "bg-emerald-100 text-emerald-800",
-      Kesehatan: "bg-pink-100 text-pink-800",
-      Keterampilan: "bg-purple-100 text-purple-800",
-      Administrasi: "bg-gray-100 text-gray-800",
+      Rapat: "bg-blue-100 text-blue-800",
+      Pelatihan: "bg-purple-100 text-purple-800",
+      Festival: "bg-pink-100 text-pink-800",
+      "Gotong Royong": "bg-green-100 text-green-800",
+      Kesehatan: "bg-red-100 text-red-800",
+      Pendidikan: "bg-indigo-100 text-indigo-800",
+      Sosial: "bg-yellow-100 text-yellow-800",
+      Ekonomi: "bg-emerald-100 text-emerald-800",
+      Budaya: "bg-orange-100 text-orange-800",
+      Olahraga: "bg-cyan-100 text-cyan-800",
+      Lingkungan: "bg-lime-100 text-lime-800",
+      Keagamaan: "bg-violet-100 text-violet-800",
     };
     return colors[category] || "bg-gray-100 text-gray-800";
   };
@@ -183,7 +264,7 @@ export default function AdminAgenda() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Kelola Agenda</h1>
           <p className="text-gray-600">Manage jadwal kegiatan dusun</p>
@@ -198,6 +279,48 @@ export default function AdminAgenda() {
           <Plus className="h-4 w-4 mr-2" />
           Tambah Agenda
         </button>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Cari agenda..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <div className="md:w-48">
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white"
+              >
+                <option value="">Semua Kategori</option>
+                <option value="Rapat">Rapat</option>
+                <option value="Pelatihan">Pelatihan</option>
+                <option value="Festival">Festival</option>
+                <option value="Gotong Royong">Gotong Royong</option>
+                <option value="Kesehatan">Kesehatan</option>
+                <option value="Pendidikan">Pendidikan</option>
+                <option value="Sosial">Sosial</option>
+                <option value="Ekonomi">Ekonomi</option>
+                <option value="Budaya">Budaya</option>
+                <option value="Olahraga">Olahraga</option>
+                <option value="Lingkungan">Lingkungan</option>
+                <option value="Keagamaan">Keagamaan</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Statistics */}
@@ -331,13 +454,7 @@ export default function AdminAgenda() {
 
                         <div className="flex space-x-2 ml-4">
                           <button
-                            onClick={() => {
-                              setEditingItem({
-                                ...activity,
-                                dayDate: dayData.date,
-                              });
-                              setShowForm(true);
-                            }}
+                            onClick={() => handleEdit(dayData.date, activity.id)}
                             className="text-indigo-600 hover:text-indigo-900 p-1"
                           >
                             <Edit className="h-4 w-4" />
@@ -393,35 +510,30 @@ export default function AdminAgenda() {
         )}
       </div>
 
-      {/* Form Modal (placeholder - would be a separate component in real app) */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              {editingItem ? "Edit Agenda" : "Tambah Agenda Baru"}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Form untuk menambah/edit agenda akan diimplementasikan di sini
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowForm(false)}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Simpan
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Form Modal */}
+      <AgendaForm
+        isOpen={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingItem(null);
+        }}
+        onSubmit={handleFormSubmit}
+        editingItem={editingItem}
+        loading={formLoading}
+      />
+
+      {/* Dialog Component */}
+      <Dialog
+        isOpen={dialog.isOpen}
+        onClose={closeDialog}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        showCancelButton={dialog.showCancelButton}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 }
-//   );
-// }

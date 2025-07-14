@@ -1,12 +1,47 @@
+"use client";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Navbar from "../../components/Navbar";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "@/firebase/client";
 import { galeriData } from "../../data/galeri";
 
 export default function GaleriPage() {
+  const [galeri, setGaleri] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGaleri = async () => {
+      try {
+        const q = query(
+          collection(db, "galeri"),
+          orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        
+        const galeriList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setGaleri(galeriList.length > 0 ? galeriList : galeriData);
+      } catch (error) {
+        console.error("Error fetching galeri:", error);
+        setGaleri(galeriData); // Fallback to static data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGaleri();
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
       {/* Header */}
-      <div className="bg-green-700 py-16">
+      <div className="bg-green-700 py-16 mt-16">
         <div className="container mx-auto px-4">
           <div className="text-center text-white">
             <h1 className="mb-4 text-4xl font-bold md:text-5xl">
@@ -48,37 +83,55 @@ export default function GaleriPage() {
 
       {/* Gallery Grid */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {galeriData.map((item) => (
-            <div
-              key={item.id}
-              className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="h-64">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  width={500}
-                  height={400}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <div className="mb-2">
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                    {item.category}
-                  </span>
+        {loading ? (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                <div className="h-64 bg-gray-200 animate-pulse"></div>
+                <div className="p-6">
+                  <div className="mb-2">
+                    <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="h-6 w-full bg-gray-200 rounded animate-pulse mb-3"></div>
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-1"></div>
+                  <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
                 </div>
-                <h3 className="mb-3 text-xl font-bold text-gray-800">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-gray-600 line-clamp-3">
-                  {item.deskripsi || `Dokumentasi ${item.category.toLowerCase()} di Dusun Grenggeng`}
-                </p>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {galeri.map((item) => (
+              <div
+                key={item.id}
+                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              >
+                <div className="h-64">
+                  <Image
+                    src={item.image || item.gambar || "/placeholder-image.jpg"}
+                    alt={item.title || item.nama || `Galeri ${item.category || item.kategori || 'Dusun Grenggeng'}`}
+                    width={500}
+                    height={400}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="mb-2">
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                      {item.category || item.kategori}
+                    </span>
+                  </div>
+                  <h3 className="mb-3 text-xl font-bold text-gray-800">
+                    {item.title || item.nama}
+                  </h3>
+                  <p className="text-sm text-gray-600 line-clamp-3">
+                    {item.deskripsi || item.description || `Dokumentasi ${(item.category || item.kategori || "kegiatan").toLowerCase()} di Dusun Grenggeng`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Back to Home */}
         <div className="mt-12 text-center">

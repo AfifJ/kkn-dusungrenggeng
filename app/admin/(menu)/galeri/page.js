@@ -10,10 +10,13 @@ import {
 } from "./actions";
 import GaleriForm from "./components/GaleriForm";
 import DeleteModal from "./components/DeleteModal";
+import Dialog from "@/components/admin/Dialog";
 import { toast } from "react-hot-toast";
+import { useDialog } from "@/hooks/useDialog";
 
 export default function GaleriAdminPage() {
   const { user } = useAuth();
+  const { dialog, closeDialog, confirm } = useDialog();
   const [galeri, setGaleri] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,15 +63,32 @@ export default function GaleriAdminPage() {
     setShowForm(true);
   };
 
-  const handleDelete = async (galeriItem) => {
+  const handleDelete = (id, title) => {
+    confirm(
+      `Apakah Anda yakin ingin menghapus gambar "${title}"?`,
+      () => confirmDelete(id),
+      {
+        title: "Hapus Gambar",
+        type: "error",
+        confirmText: "Hapus"
+      }
+    );
+  };
+
+  const confirmDelete = async (id) => {
     try {
-      await deleteGaleriWithImage(galeriItem.id, galeriItem.judul, user.email);
+      setLoading(true);
+      const galeriItem = galeri.find(item => item.id === id);
+      await deleteGaleriWithImage(id, galeriItem?.judul || "Galeri", user.email);
       toast.success("Foto galeri berhasil dihapus");
       setDeleteModal({ show: false, galeri: null });
       fetchGaleri();
     } catch (error) {
       console.error("Error deleting galeri:", error);
       toast.error("Gagal menghapus foto galeri");
+    } finally {
+      setLoading(false);
+      closeDialog();
     }
   };
 
@@ -386,6 +406,19 @@ export default function GaleriAdminPage() {
           onCancel={() => setDeleteModal({ show: false, galeri: null })}
         />
       )}
+
+      {/* Dialog Component */}
+      <Dialog
+        isOpen={dialog.isOpen}
+        onClose={closeDialog}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        showCancelButton={dialog.showCancelButton}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 }

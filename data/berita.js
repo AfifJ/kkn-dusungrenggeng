@@ -1,8 +1,6 @@
 export const beritaData = [
   {
-    id: 1,
     judul: "Panen Raya Tahu Tradisional Grenggeng",
-    ringkasan: "Musim panen kedelai tiba, para pengrajin tahu di Grenggeng siap memproduksi tahu berkualitas untuk memenuhi permintaan pasar.",
     konten: `
       <p>Dusun Grenggeng kembali memasuki masa panen raya kedelai yang menjadi bahan baku utama produksi tahu tradisional. Para petani dan pengrajin tahu di dusun ini bekerja sama untuk menghasilkan produk tahu berkualitas tinggi.</p>
       
@@ -10,17 +8,13 @@ export const beritaData = [
       
       <p>Proses pembuatan tahu di Grenggeng masih menggunakan metode tradisional yang telah diwariskan turun-temurun. Hal ini memberikan cita rasa khas yang tidak bisa ditemukan di tempat lain.</p>
     `,
-    gambar: "/images/berita/panen-tahu.jpg",
+    kategori: "Artikel",
+    status: "published",
     tanggal: "2024-01-15",
-    kategori: "Ekonomi",
-    penulis: "Tim Redaksi Grenggeng",
-    tags: ["tahu", "panen", "ekonomi", "tradisional"],
-    status: "published"
+    gambar: "https://images.unsplash.com/photo-1576402794867-f0d4b78b5ad4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
   },
   {
-    id: 2,
     judul: "Gotong Royong Pembangunan Jalan Desa",
-    ringkasan: "Warga Dusun Grenggeng bergotong royong memperbaiki jalan desa untuk meningkatkan akses transportasi dan mendukung aktivitas ekonomi.",
     konten: `
       <p>Dalam semangat gotong royong, seluruh warga Dusun Grenggeng bersatu padu memperbaiki jalan desa yang rusak akibat musim hujan. Kegiatan ini melibatkan seluruh elemen masyarakat dari berbagai kalangan.</p>
       
@@ -28,17 +22,13 @@ export const beritaData = [
       
       <p>"Dengan jalan yang baik, akses untuk distribusi hasil tahu dan pertanian akan lebih lancar," ujar salah satu warga yang ikut berpartisipasi.</p>
     `,
-    gambar: "/images/berita/gotong-royong.jpg",
+    kategori: "Kegiatan",
+    status: "published",
     tanggal: "2024-01-10",
-    kategori: "Pembangunan",
-    penulis: "Tim Redaksi Grenggeng",
-    tags: ["gotong-royong", "pembangunan", "infrastruktur"],
-    status: "published"
+    gambar: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
   },
   {
-    id: 3,
     judul: "Pelatihan Teknologi Pertanian Modern",
-    ringkasan: "Dinas Pertanian mengadakan pelatihan teknologi pertanian modern untuk meningkatkan produktivitas petani di Dusun Grenggeng.",
     konten: `
       <p>Dinas Pertanian Kabupaten Magelang mengadakan pelatihan teknologi pertanian modern untuk para petani di Dusun Grenggeng. Pelatihan ini bertujuan untuk meningkatkan produktivitas dan kualitas hasil pertanian.</p>
       
@@ -46,11 +36,39 @@ export const beritaData = [
       
       <p>Para petani sangat antusias mengikuti pelatihan ini karena diharapkan dapat meningkatkan pendapatan mereka.</p>
     `,
-    gambar: "/images/berita/pelatihan-pertanian.jpg",
+    kategori: "Berita Desa",
+    status: "published",
     tanggal: "2024-01-08",
-    kategori: "Pertanian",
-    penulis: "Tim Redaksi Grenggeng",
-    tags: ["pertanian", "teknologi", "pelatihan", "produktivitas"],
-    status: "published"
-  }
+    gambar: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    judul: "Pengumuman Jadwal Rapat RT Bulanan",
+    konten: `
+      <p>Kepada seluruh warga Dusun Grenggeng, kami sampaikan bahwa akan diadakan rapat RT bulanan pada:</p>
+      
+      <p><strong>Hari/Tanggal:</strong> Sabtu, 15 Februari 2025<br/>
+      <strong>Waktu:</strong> 19:00 WIB<br/>
+      <strong>Tempat:</strong> Balai Desa Grenggeng</p>
+      
+      <p>Agenda rapat meliputi evaluasi kegiatan bulan lalu, pembahasan program kerja bulan ini, dan rencana kegiatan sosial kemasyarakatan. Diharapkan seluruh kepala keluarga dapat hadir tepat waktu.</p>
+    `,
+    kategori: "Pengumuman",
+    status: "published",
+    tanggal: "2024-02-10",
+    gambar: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    judul: "Festival Tahu Grenggeng 2024",
+    konten: `
+      <p>Paguyuban Pengrajin Tahu Grenggeng dengan bangga mengumumkan akan diselenggarakannya Festival Tahu Grenggeng 2024. Acara ini merupakan event tahunan untuk mempromosikan produk tahu khas Grenggeng.</p>
+      
+      <p>Festival akan diadakan pada tanggal 10 Maret 2024 di Lapangan Desa Grenggeng, mulai pukul 09:00 WIB. Berbagai lomba dan pameran produk tahu akan menjadi daya tarik utama acara ini.</p>
+      
+      <p>Selain itu, akan ada demo pembuatan tahu, pameran UMKM lokal, dan hiburan rakyat. Mari bersama-sama menyukseskan acara ini!</p>
+    `,
+    kategori: "Kegiatan",
+    status: "draft",
+    tanggal: "2024-02-25",
+    gambar: "https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+  },
 ];

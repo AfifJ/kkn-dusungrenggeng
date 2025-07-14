@@ -1,5 +1,17 @@
-"use client";import { useState, useEffect } from "react";import Image from "next/image";
-import { X } from "lucide-react";import { useAuth } from "@/context/auth";import {  addProdukWithImage,  updateProdukWithImage,} from "../actions";export default function ProdukForm({ produk, onSuccess, onCancel }) {  const { user } = useAuth();  const [loading, setLoading] = useState(false);  const [imageFile, setImageFile] = useState(null);  const [imagePreview, setImagePreview] = useState("");  const [formData, setFormData] = useState({    nama: "",    deskripsi: "",    harga: "",    kategori: "",    stok: "",    penjual: "",    kontak: "",    status: "tersedia",  });  const categories = ["Makanan", "Minuman", "Kerajinan", "Pertanian", "Lainnya"];  useEffect(() => {    if (produk) {      setFormData({        nama: produk.nama || "",        deskripsi: produk.deskripsi || "",        harga: produk.harga || "",        kategori: produk.kategori || "",        stok: produk.stok || "",        penjual: produk.penjual || "",        kontak: produk.kontak || "",        status: produk.status || "tersedia",      });      setImagePreview(produk.gambar || "");    }  }, [produk]);  const handleInputChange = (e) => {    const { name, value } = e.target;    setFormData(prev => ({      ...prev,      [name]: value    }));  };  const compressImage = (file, maxWidth = 1920, maxHeight = 1080, quality = 0.8) => {    return new Promise((resolve) => {      const canvas = document.createElement('canvas');      const ctx = canvas.getContext('2d');      const img = new Image();      
+"use client";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { X } from "lucide-react";
+import { useAuth } from "@/context/auth";
+import Dialog from "@/components/admin/Dialog";
+import { useDialog } from "@/hooks/useDialog";
+import {
+  addProdukWithImage,
+  updateProdukWithImage,
+} from "../actions";export default function ProdukForm({ produk, onSuccess, onCancel }) {
+  const { user } = useAuth();
+  const { dialog, closeDialog, alert } = useDialog();
+  const [loading, setLoading] = useState(false);  const [imageFile, setImageFile] = useState(null);  const [imagePreview, setImagePreview] = useState("");  const [formData, setFormData] = useState({    nama: "",    deskripsi: "",    harga: "",    kategori: "",    stok: "",    penjual: "",    kontak: "",    status: "tersedia",  });  const categories = ["Makanan", "Minuman", "Kerajinan", "Pertanian", "Lainnya"];  useEffect(() => {    if (produk) {      setFormData({        nama: produk.nama || "",        deskripsi: produk.deskripsi || "",        harga: produk.harga || "",        kategori: produk.kategori || "",        stok: produk.stok || "",        penjual: produk.penjual || "",        kontak: produk.kontak || "",        status: produk.status || "tersedia",      });      setImagePreview(produk.gambar || "");    }  }, [produk]);  const handleInputChange = (e) => {    const { name, value } = e.target;    setFormData(prev => ({      ...prev,      [name]: value    }));  };  const compressImage = (file, maxWidth = 1920, maxHeight = 1080, quality = 0.8) => {    return new Promise((resolve) => {      const canvas = document.createElement('canvas');      const ctx = canvas.getContext('2d');      const img = new Image();      
       img.onload = () => {
         let { width, height } = img;
         
@@ -30,12 +42,12 @@ import { X } from "lucide-react";import { useAuth } from "@/context/auth";import
     const file = e.target.files[0];
     if (file) {
       if (file.size > 50 * 1024 * 1024) {
-        alert('Ukuran file terlalu besar. Maksimal 50MB.');
+        alert('Ukuran file terlalu besar. Maksimal 50MB.', 'error');
         return;
       }
 
       if (!file.type.startsWith('image/')) {
-        alert('File harus berupa gambar.');
+        alert('File harus berupa gambar.', 'error');
         return;
       }
 
@@ -55,7 +67,7 @@ import { X } from "lucide-react";import { useAuth } from "@/context/auth";import
     e.preventDefault();
     
     if (!formData.nama || !formData.deskripsi || !formData.kategori || !formData.harga || !formData.stok || !formData.penjual || !formData.kontak) {
-      alert('Harap isi semua field yang wajib diisi.');
+      alert('Harap isi semua field yang wajib diisi.', 'warning');
       return;
     }
 
@@ -86,7 +98,7 @@ import { X } from "lucide-react";import { useAuth } from "@/context/auth";import
       onSuccess();
     } catch (error) {
       console.error('Error saving produk:', error);
-      alert('Gagal menyimpan produk. Silakan coba lagi.');
+      alert('Gagal menyimpan produk. Silakan coba lagi.', 'error');
     } finally {
       setLoading(false);
     }
@@ -245,9 +257,11 @@ import { X } from "lucide-react";import { useAuth } from "@/context/auth";import
               </p>
               {imagePreview && (
                 <div className="mt-3">
-                  <img
+                  <Image
                     src={imagePreview}
                     alt="Preview"
+                    width={160}
+                    height={160}
                     className="h-40 w-auto object-cover rounded-lg border border-gray-200"
                   />
                 </div>
@@ -273,6 +287,19 @@ import { X } from "lucide-react";import { useAuth } from "@/context/auth";import
           </form>
         </div>
       </div>
+      
+      {/* Dialog Component */}
+      <Dialog
+        isOpen={dialog.isOpen}
+        onClose={closeDialog}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        showCancelButton={dialog.showCancelButton}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onConfirm={dialog.onConfirm}
+      />
     </div>
   );
 }
