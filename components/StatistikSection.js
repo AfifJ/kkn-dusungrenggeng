@@ -62,7 +62,7 @@ export default function StatistikSection() {
           {settings.statistics?.map((stat) => {
             const IconComponent = iconMap[stat.icon] || Factory;
             return (
-              <div key={stat.id} className="bg-opacity-10 border-opacity-20 rounded-lg border border-white bg-green-700 p-8 text-center text-white backdrop-blur-sm backdrop-filter">
+              <div key={stat.id} className="bg-green-700/100 border-white/20 rounded-lg border p-8 text-center text-white backdrop-blur-sm backdrop-filter">
                 <div className="mb-3 text-5xl font-bold">
                   {stat.value}
                 </div>

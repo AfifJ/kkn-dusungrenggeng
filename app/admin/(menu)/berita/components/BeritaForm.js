@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { addBeritaWithImage, updateBeritaWithImage } from "../actions";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/context/auth";
@@ -35,6 +35,8 @@ export default function BeritaForm({
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const mountedRef = useRef(false);
   const [formData, setFormData] = useState({
     judul: "",
     konten: "",
@@ -47,7 +49,16 @@ export default function BeritaForm({
   const categories = ["Pengumuman", "Kegiatan", "Berita Desa", "Artikel"];
 
   useEffect(() => {
-    if (berita) {
+    mountedRef.current = true;
+    setMounted(true);
+    return () => {
+      mountedRef.current = false;
+      setMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (berita && mounted && mountedRef.current) {
       setFormData({
         judul: berita.judul || "",
         konten: berita.konten || "",
@@ -60,9 +71,11 @@ export default function BeritaForm({
       });
       setImagePreview(berita.gambar || "");
     }
-  }, [berita]);
+  }, [berita, mounted]);
 
   const handleInputChange = (e) => {
+    if (!mountedRef.current) return;
+    
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -71,7 +84,7 @@ export default function BeritaForm({
   };
 
   // Update image compression function to use Imghippo utility
-  const compressImage = (
+  const compressImage = useCallback((
     file,
     maxWidth = 1920,
     maxHeight = 1080,
@@ -80,9 +93,14 @@ export default function BeritaForm({
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      const img = new Image();
+      const img = document.createElement("img");
 
       img.onload = () => {
+        if (!mountedRef.current) {
+          resolve(null);
+          return;
+        }
+
         let { width, height } = img;
 
         if (width > height) {
@@ -106,9 +124,11 @@ export default function BeritaForm({
 
       img.src = URL.createObjectURL(file);
     });
-  };
+  }, []);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = useCallback((e) => {
+    if (!mountedRef.current) return;
+
     const file = e.target.files[0];
     if (file) {
       // Check file size (50MB limit for Imghippo)
@@ -127,9 +147,12 @@ export default function BeritaForm({
       if (file.size > 2 * 1024 * 1024) {
         // If larger than 2MB
         compressImage(file).then((compressedFile) => {
+          if (!mountedRef.current || !compressedFile) return;
+          
           setImageFile(compressedFile);
           const reader = new FileReader();
           reader.onload = (e) => {
+            if (!mountedRef.current) return;
             setImagePreview(e.target.result);
           };
           reader.readAsDataURL(compressedFile);
@@ -138,12 +161,13 @@ export default function BeritaForm({
         setImageFile(file);
         const reader = new FileReader();
         reader.onload = (e) => {
+          if (!mountedRef.current) return;
           setImagePreview(e.target.result);
         };
         reader.readAsDataURL(file);
       }
     }
-  };
+  }, [compressImage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -179,7 +203,7 @@ export default function BeritaForm({
     <div
       className={
         isModal
-          ? "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          ? "fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           : ""
       }
     >
@@ -279,6 +303,7 @@ export default function BeritaForm({
                         <button
                           type="button"
                           onClick={() => {
+                            if (!mountedRef.current) return;
                             setImagePreview("");
                             setImageFile(null);
                           }}
@@ -320,13 +345,16 @@ export default function BeritaForm({
                   <BookOpen className="w-5 h-5" />
                   <span className="text-sm font-medium">Konten Berita</span>
                 </div>
-                <RichTextEditor
-                  value={formData.konten}
-                  onChange={(value) =>
-                    setFormData((prev) => ({ ...prev, konten: value }))
-                  }
-                  placeholder="Mulai menulis konten berita Anda..."
-                />
+                {mounted && (
+                  <RichTextEditor
+                    value={formData.konten}
+                    onChange={(value) => {
+                      if (!mountedRef.current) return;
+                      setFormData((prev) => ({ ...prev, konten: value }));
+                    }}
+                    placeholder="Mulai menulis konten berita Anda..."
+                  />
+                )}
               </div>
             </div>
 

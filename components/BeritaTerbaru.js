@@ -2,7 +2,14 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { collection, getDocs, query, orderBy, limit, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  where,
+} from "firebase/firestore";
 import { db } from "@/firebase/client";
 
 export default function BeritaTerbaru() {
@@ -16,22 +23,24 @@ export default function BeritaTerbaru() {
           collection(db, "berita"),
           where("status", "==", "published"),
           orderBy("createdAt", "desc"),
-          limit(3)
+          limit(4)
         );
         const querySnapshot = await getDocs(q);
-        
-        const beritaList = querySnapshot.docs.map(doc => ({
+
+        const beritaList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }));
-        
+
         setBerita(beritaList);
       } catch (error) {
         console.error("Error fetching berita:", error);
         // Fallback ke data statis dan filter published
         try {
           const { beritaData } = await import("../data/berita");
-          const publishedBerita = beritaData.filter(item => item.status === "published");
+          const publishedBerita = beritaData.filter(
+            (item) => item.status === "published"
+          );
           setBerita(publishedBerita.slice(0, 3));
         } catch (importError) {
           console.error("Error importing berita data:", importError);
@@ -63,7 +72,10 @@ export default function BeritaTerbaru() {
           // Loading skeleton
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="overflow-hidden rounded-lg bg-white shadow-md">
+              <div
+                key={i}
+                className="overflow-hidden rounded-lg bg-white shadow-md"
+              >
                 <div className="h-48 bg-gray-200 animate-pulse"></div>
                 <div className="p-6">
                   <div className="h-4 bg-gray-200 rounded mb-4 animate-pulse"></div>
@@ -79,37 +91,51 @@ export default function BeritaTerbaru() {
               const generateSlug = (title) => {
                 return title
                   .toLowerCase()
-                  .replace(/\s+/g, '-')
-                  .replace(/[^\w\-]+/g, '');
+                  .replace(/\s+/g, "-")
+                  .replace(/[^\w\-]+/g, "");
               };
 
               return (
                 <Link
                   key={item.id}
-                  href={`/berita/${item.slug || generateSlug(item.judul || item.title)}`}
+                  href={`/berita/${
+                    item.slug || generateSlug(item.judul || item.title)
+                  }`}
                   className="group"
                 >
                   <div className="overflow-hidden rounded-lg bg-white shadow-md transition-shadow duration-300 group-hover:shadow-lg">
-                    <div className="h-48 overflow-hidden">
-                      <Image
-                        src={item.gambar || item.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"}
-                        alt={item.judul || item.title}
-                        width={500}
-                        height={300}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                    <div className="h-48 overflow-hidden relative bg-gray-200">
+                      {(item.gambar || item.image) ? (
+                        <Image
+                          src={item.gambar || item.image}
+                          alt={item.judul || item.title}
+                          width={500}
+                          height={300}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-center p-4">
+                          <h3 className="text-lg font-semibold text-gray-600 break-words">
+                            {item.judul || item.title}
+                          </h3>
+                        </div>
+                      )}
                     </div>
                     <div className="p-6">
                       <div className="mb-3 flex items-center justify-between">
                         <span className="text-xs font-semibold tracking-wider text-green-600 uppercase">
-                          {item.kategori || 'Berita'}
+                          {item.kategori || "Berita"}
                         </span>
-                        <span className="text-xs text-gray-500">{item.tanggal || item.date}</span>
+                        <span className="text-xs text-gray-500">
+                          {item.tanggal || item.date}
+                        </span>
                       </div>
                       <h3 className="mb-3 text-xl font-bold text-gray-800 transition-colors group-hover:text-green-700">
                         {item.judul || item.title}
                       </h3>
-                      <p className="mb-4 text-gray-600">{item.ringkasan || item.deskripsi || item.excerpt}</p>
+                      <p className="mb-4 text-gray-600">
+                        {item.ringkasan || item.deskripsi || item.excerpt}
+                      </p>
                       <span className="inline-flex items-center font-medium text-green-600 transition-colors group-hover:text-green-800">
                         Baca selengkapnya
                         <svg
@@ -140,7 +166,8 @@ export default function BeritaTerbaru() {
                 Belum Ada Berita Terbaru
               </h3>
               <p className="text-gray-600 mb-6">
-                Saat ini belum ada berita yang dipublikasikan. Silakan cek kembali nanti.
+                Saat ini belum ada berita yang dipublikasikan. Silakan cek
+                kembali nanti.
               </p>
               <Link
                 href="/berita"

@@ -77,13 +77,23 @@ export default function Gallery() {
                 key={photo.id}
                 className="group relative overflow-hidden rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg"
               >
-                <Image
-                  src={photo.gambar || photo.image || "https://images.unsplash.com/photo-1464226184884-fa280b87c399"}
-                  alt={photo.judul || photo.title}
-                  width={500}
-                  height={300}
-                  className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+                <div className="h-64 relative bg-gray-200">
+                  {(photo.gambar || photo.image) ? (
+                    <Image
+                      src={photo.gambar || photo.image}
+                      alt={photo.judul || photo.title}
+                      width={500}
+                      height={300}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-center p-4">
+                      <h3 className="text-lg font-semibold text-gray-600 break-words">
+                        {photo.judul || photo.title}
+                      </h3>
+                    </div>
+                  )}
+                </div>
                 <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <div>
                     <span className="mb-1 inline-block rounded bg-green-600 px-2 py-1 text-xs text-white">

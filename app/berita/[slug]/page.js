@@ -5,10 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
-import { doc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/client";
 import { beritaData } from "../../../data/berita";
 import BlockRenderer from "../../admin/(menu)/berita/components/BlockRenderer";
+import { getBeritaBySlug } from "../../admin/(menu)/berita/actions";
 
 export default function BeritaDetailPage() {
   const params = useParams();
@@ -20,19 +21,10 @@ export default function BeritaDetailPage() {
   useEffect(() => {
     const fetchBerita = async () => {
       try {
-        // First try to find by slug in Firebase
-        const beritaRef = collection(db, "berita");
-        const q = query(beritaRef, where("slug", "==", params.slug));
-        const querySnapshot = await getDocs(q);
+        // First try to find by slug using the new function
+        let foundBerita = await getBeritaBySlug(params.slug);
         
-        let foundBerita = null;
-        if (!querySnapshot.empty) {
-          const doc = querySnapshot.docs[0];
-          foundBerita = {
-            id: doc.id,
-            ...doc.data()
-          };
-        } else {
+        if (!foundBerita) {
           // Fallback to local data
           foundBerita = beritaData.find(b => 
             b.slug === params.slug || 

@@ -79,7 +79,7 @@ const RichTextEditor = ({
 
   // Handle editor state change
   const handleEditorChange = (newEditorState) => {
-    if (!isMounted || !isClient) return;
+    if (!isMountedRef.current || !isMounted || !isClient) return;
 
     setEditorState(newEditorState);
 
@@ -90,7 +90,7 @@ const RichTextEditor = ({
     const cleanHtml = html.replace(/<p><\/p>/g, "").trim();
 
     // Only call onChange if content has actually changed from the last synced value
-    if (cleanHtml !== internalHtml) {
+    if (cleanHtml !== internalHtml && isMountedRef.current) {
       setInternalHtml(cleanHtml); // Update internal state first
       onChange(cleanHtml);
     }

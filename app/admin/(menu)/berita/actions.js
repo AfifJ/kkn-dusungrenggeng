@@ -15,6 +15,14 @@ import { db } from "@/firebase/client";
 
 const COLLECTION_NAME = "berita";
 
+// Generate slug from title
+const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '');
+};
+
 // Get all berita
 export const getBerita = async () => {
   try {
@@ -59,6 +67,7 @@ export const addBerita = async (data, userEmail) => {
   try {
     const beritaData = {
       ...data,
+      slug: generateSlug(data.judul),
       createdAt: new Date().toISOString(),
       createdBy: userEmail,
       lastModified: new Date().toISOString(),
@@ -87,6 +96,7 @@ export const updateBerita = async (id, data, userEmail) => {
 
     const updateData = {
       ...data,
+      slug: generateSlug(data.judul),
       lastModified: new Date().toISOString(),
       lastModifiedBy: userEmail,
     };
@@ -356,6 +366,7 @@ export const addBeritaWithImage = async (data, imageFile, userEmail) => {
     // Prepare berita data
     const beritaData = {
       ...data,
+      slug: generateSlug(data.judul),
       gambar: imageData ? imageData.url : data.gambar || "",
       imageTitle: imageData ? imageData.title : "",
       imageSize: imageData ? imageData.size : 0,
@@ -404,6 +415,7 @@ export const updateBeritaWithImage = async (id, data, imageFile, userEmail) => {
     // Prepare update data
     const updateData = {
       ...data,
+      slug: generateSlug(data.judul),
       ...(imageData && {
         gambar: imageData.url,
         imageTitle: imageData.title,
@@ -465,6 +477,31 @@ export const getBeritaById = async (id) => {
     return null;
   } catch (error) {
     console.error("Error getting berita by ID:", error);
+    throw error;
+  }
+};
+
+// Get berita by slug
+export const getBeritaBySlug = async (slug) => {
+  try {
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where("slug", "==", slug),
+      where("status", "==", "published")
+    );
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error getting berita by slug:", error);
     throw error;
   }
 };

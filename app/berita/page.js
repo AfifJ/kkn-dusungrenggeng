@@ -122,14 +122,22 @@ export default function BeritaPage() {
                   className="group"
                 >
                   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1">
-                    <div className="h-48">
-                      <Image
-                        src={item.gambar || item.image || "/placeholder-image.jpg"}
-                        alt={item.judul || item.title || `Berita ${item.kategori || item.category || 'Dusun Grenggeng'}`}
-                        width={500}
-                        height={300}
-                        className="h-full w-full object-cover"
-                      />
+                    <div className="h-48 relative bg-gray-200">
+                      {(item.gambar || item.image) ? (
+                        <Image
+                          src={item.gambar || item.image}
+                          alt={item.judul || item.title || `Berita ${item.kategori || item.category || 'Dusun Grenggeng'}`}
+                          width={500}
+                          height={300}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-center p-4">
+                          <h3 className="text-lg font-semibold text-gray-600 break-words">
+                            {item.judul || item.title}
+                          </h3>
+                        </div>
+                      )}
                     </div>
                     <div className="p-6">
                       <div className="mb-2 flex items-center justify-between">

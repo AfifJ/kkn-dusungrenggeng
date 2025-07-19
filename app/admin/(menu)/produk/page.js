@@ -10,7 +10,6 @@ import {
   searchProduk,
 } from "./actions";
 import ProdukForm from "./components/ProdukForm";
-import DeleteModal from "./components/DeleteModal";
 import Dialog from "@/components/admin/Dialog";
 import { toast } from "react-hot-toast";
 
@@ -34,7 +33,6 @@ export default function AdminProdukPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingProduk, setEditingProduk] = useState(null);
-  const [deleteModal, setDeleteModal] = useState({ show: false, produk: null });
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "table"
 
   const categories = ["Makanan", "Minuman", "Kerajinan", "Pertanian", "Lainnya"];
@@ -74,10 +72,10 @@ export default function AdminProdukPage() {
     setShowForm(true);
   };
 
-  const handleDelete = (id, title) => {
+  const handleDelete = (produkItem) => {
     confirm(
-      `Apakah Anda yakin ingin menghapus produk "${title}"?`,
-      () => confirmDelete(id),
+      `Apakah Anda yakin ingin menghapus produk "${produkItem.nama}"?`,
+      () => confirmDelete(produkItem.id),
       {
         title: "Hapus Produk",
         type: "error",
@@ -88,17 +86,23 @@ export default function AdminProdukPage() {
 
   const confirmDelete = async (id) => {
     try {
-      setLoading(true);
+      console.log("Attempting to delete produk with ID:", id);
       const produkItem = produk.find(item => item.id === id);
-      await deleteProdukWithImage(id, produkItem?.nama || "Produk", user.email);
+      console.log("Found produk item:", produkItem);
+      
+      if (!produkItem) {
+        toast.error("Produk tidak ditemukan");
+        return;
+      }
+      
+      await deleteProdukWithImage(id, produkItem.nama, user.email);
+      console.log("Delete successful");
       toast.success("Produk berhasil dihapus");
-      setDeleteModal({ show: false, produk: null });
       fetchProduk();
     } catch (error) {
       console.error("Error deleting produk:", error);
-      toast.error("Gagal menghapus produk");
+      toast.error(`Gagal menghapus produk: ${error.message}`);
     } finally {
-      setLoading(false);
       closeDialog();
     }
   };
@@ -274,19 +278,19 @@ export default function AdminProdukPage() {
                 </div>
                 
                 {/* Overlay with actions */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      className="bg-white/90 hover:bg-white/100 text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
                     <button
-                      onClick={() => setDeleteModal({ show: true, produk: item })}
-                      className="bg-white bg-opacity-90 hover:bg-opacity-100 text-red-600 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      onClick={() => handleDelete(item)}
+                      className="bg-white/90 hover:bg-white/100 text-red-600 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -428,7 +432,7 @@ export default function AdminProdukPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(item.id, item.nama)}
+                        onClick={() => handleDelete(item)}
                         className="text-red-600 hover:text-red-900 transition-colors"
                       >
                         Hapus
@@ -460,15 +464,6 @@ export default function AdminProdukPage() {
             setShowForm(false);
             setEditingProduk(null);
           }}
-        />
-      )}
-
-      {/* Delete Modal */}
-      {deleteModal.show && (
-        <DeleteModal
-          produk={deleteModal.produk}
-          onConfirm={() => handleDelete(deleteModal.produk)}
-          onCancel={() => setDeleteModal({ show: false, produk: null })}
         />
       )}
 
