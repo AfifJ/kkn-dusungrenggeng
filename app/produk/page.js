@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/firebase/client";
 import { produkData } from "@/data/produk";
@@ -38,8 +37,6 @@ export default function ProdukPage() {
   }, []);
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
       {/* Header */}
       <div className="bg-green-700 py-16 mt-16">
         <div className="container mx-auto px-4">

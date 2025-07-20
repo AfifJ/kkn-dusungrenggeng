@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
 import { Calendar, Clock, MapPin, CheckCircle, Circle } from "lucide-react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/firebase/client";
@@ -74,7 +73,6 @@ export default function KalenderPage() {
   };
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
 
       {/* Header */}
       <div className="bg-green-700 py-16 mt-16">

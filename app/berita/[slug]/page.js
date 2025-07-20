@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "../../../components/Navbar";
-import Footer from "../../../components/Footer";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/client";
 import { beritaData } from "../../../data/berita";
@@ -113,7 +111,6 @@ export default function BeritaDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <div className="pt-20 pb-16">
           <div className="container mx-auto px-4">
             <div className="animate-pulse">
@@ -134,7 +131,6 @@ export default function BeritaDetailPage() {
   if (!berita) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
         <div className="pt-20 pb-16">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">
@@ -154,8 +150,6 @@ export default function BeritaDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
       {/* Breadcrumb */}
       <div className="bg-white border-b pt-20 pb-4">
         <div className="container mx-auto px-4">
@@ -476,7 +470,6 @@ export default function BeritaDetailPage() {
         </section>
       )}
 
-      <Footer />
     </div>
   );
 }
