@@ -12,6 +12,7 @@
     "@imagekit/next": "^2.1.2",
     "@uiw/react-md-editor": "^4.0.7",
     "@uiw/react-textarea-code-editor": "^3.1.1",
+    "critters": "^0.0.23",
     "draft-js": "^0.11.7",
     "draft-js-export-html": "^1.4.1",
     "draft-js-import-html": "^1.4.1",

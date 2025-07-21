@@ -118,7 +118,7 @@ export default function BeritaPage() {
                   href={`/berita/${item.slug || generateSlug(item.judul || item.title)}`}
                   className="group"
                 >
-                  <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1">
+                  <div className="overflow-hidden md:h-[390px] rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1">
                     <div className="h-48 relative bg-gray-200">
                       {(item.gambar || item.image) ? (
                         <Image
@@ -147,7 +147,7 @@ export default function BeritaPage() {
                             new Date().toLocaleDateString('id-ID'))}
                         </span>
                       </div>
-                      <h3 className="mb-2 text-xl font-bold text-gray-800 line-clamp-2 group-hover:text-green-700 transition-colors">
+                      <h3 className="mb-2 md:h-14 text-xl font-bold text-gray-800 line-clamp-2 group-hover:text-green-700 transition-colors">
                         {item.judul || item.title}
                       </h3>
                       <p className="mb-4 text-sm text-gray-600 line-clamp-3">

@@ -1,8 +1,10 @@
 import { beritaData } from '@/data/berita';
 import { produkData } from '@/data/produk';
+import { agendaData } from '@/data/agenda';
+import { galeriData } from '@/data/galeri';
 
 export default async function sitemap() {
-  const baseUrl = 'https://dusungrenggeng.vercel.app';
+  const baseUrl = 'https://dusungrenggeng.netlify.app';
   
   // Static routes
   const staticRoutes = [
@@ -36,6 +38,12 @@ export default async function sitemap() {
       changeFrequency: 'daily',
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/agenda`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
   ];
 
   try {
@@ -50,14 +58,36 @@ export default async function sitemap() {
       }));
 
     // Dynamic routes - produk (using static data for now)
-    const produkRoutes = produkData.map((item, index) => ({
-      url: `${baseUrl}/produk/${item.slug || item.nama.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    }));
+    const produkRoutes = produkData
+      .filter(item => item.status === "published" || !item.status)
+      .map((item, index) => ({
+        url: `${baseUrl}/produk/${item.slug || item.nama.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.5,
+      }));
 
-    return [...staticRoutes, ...beritaRoutes, ...produkRoutes];
+    // Dynamic routes - agenda
+    const agendaRoutes = agendaData
+      .filter(item => item.status === "scheduled" || !item.status)
+      .map((item) => ({
+        url: `${baseUrl}/agenda/${item.slug || item.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+        lastModified: item.tanggal ? new Date(item.tanggal) : new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.4,
+      }));
+
+    // Dynamic routes - galeri
+    const galeriRoutes = galeriData
+      .filter(item => item.status === "published" || !item.status)
+      .map((item, index) => ({
+        url: `${baseUrl}/galeri/${item.slug || item.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+        lastModified: item.tanggal ? new Date(item.tanggal) : new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.4,
+      }));
+
+    return [...staticRoutes, ...beritaRoutes, ...produkRoutes, ...agendaRoutes, ...galeriRoutes];
   } catch (error) {
     console.error('Error generating sitemap:', error);
     return staticRoutes;

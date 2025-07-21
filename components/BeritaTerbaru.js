@@ -112,6 +112,19 @@ export default function BeritaTerbaru() {
                           width={500}
                           height={300}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentNode.innerHTML = `
+                              <div class="absolute inset-0 bg-gray-200 flex items-center justify-center text-center p-4">
+                                <h3 class="text-lg font-semibold text-gray-600 break-words">
+                                  ${item.judul || item.title}
+                                </h3>
+                              </div>
+                            `;
+                          }}
+                          priority={false}
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyATrxzLxSjYGc+Cm6Znn2GQKbJeNf/2Q=="
                         />
                       ) : (
                         <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-center p-4">
@@ -130,7 +143,7 @@ export default function BeritaTerbaru() {
                           {item.tanggal || item.date}
                         </span>
                       </div>
-                      <h3 className="mb-3 text-xl font-bold text-gray-800 transition-colors group-hover:text-green-700">
+                      <h3 className="mb-3 text-xl line-clamp-2 h-14 font-bold text-gray-800 transition-colors group-hover:text-green-700">
                         {item.judul || item.title}
                       </h3>
                       <p className="mb-4 text-gray-600">

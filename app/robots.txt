@@ -3,15 +3,23 @@ Allow: /
 
 # Disallow admin pages
 Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard/
 
 # Allow specific paths
 Allow: /berita/
 Allow: /galeri/
 Allow: /produk/
 Allow: /kalender/
+Allow: /agenda/
+
+# Allow indexing of images
+User-agent: Googlebot-Image
+Allow: /
 
 # Sitemap
-Sitemap: https://dusungrenggeng.vercel.app/sitemap.xml
+Sitemap: https://dusungrenggeng.netlify.app/sitemap.xml
 
 # Crawl delay
 Crawl-delay: 1

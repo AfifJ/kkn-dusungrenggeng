@@ -1,0 +1,39 @@
+# Default headers for all pages
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Robots-Tag: index, follow
+  
+# Cache headers for static assets
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+  
+# Cache headers for images
+*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
+  
+*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
+  
+*.png
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
+  
+*.webp
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
+  
+*.gif
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
+  
+*.svg
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
+  
+*.ico
+  Cache-Control: public, max-age=31536000, immutable
+  Expires: Thu, 31 Dec 2025 23:59:59 GMT
