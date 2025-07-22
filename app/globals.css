@@ -37,3 +37,44 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Placeholder for contentEditable elements */
+[contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af; /* text-gray-400 */
+  pointer-events: none;
+}
+
+[contenteditable]:focus:before {
+  content: "";
+}
+
+/* Rich Text Editor Styles */
+.rich-text-editor .rdw-editor-wrapper {
+  background: white;
+}
+
+.rich-text-editor .rdw-editor-main {
+  min-height: 250px;
+  padding: 16px;
+}
+
+.rich-text-editor .rdw-editor-toolbar {
+  margin-bottom: 0;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.rich-text-editor .rdw-option-wrapper {
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.rich-text-editor .rdw-option-wrapper:hover {
+  background: #e5e7eb;
+}
+
+.rich-text-editor .rdw-option-active {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}

@@ -36,16 +36,16 @@
     Cache-Control = "public, max-age=31536000, immutable"
     Expires = "Thu, 31 Dec 2025 23:59:59 GMT"
 
-# Redirects for Next.js
-[[redirects]]
-  from = "/_next/image"
-  to = "/.netlify/images"
-  status = 200
-  
-[[redirects]]
-  from = "/_ipx/*"
-  to = "/.netlify/images"
-  status = 200
+# Disable Netlify image optimization redirects to use Next.js built-in optimization
+# [[redirects]]
+#   from = "/_next/image"
+#   to = "/.netlify/images"
+#   status = 200
+#   
+# [[redirects]]
+#   from = "/_ipx/*"
+#   to = "/.netlify/images"
+#   status = 200
 
 # Force HTTPS redirect - remove www redirects
 [[redirects]]
