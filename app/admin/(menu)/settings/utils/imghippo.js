@@ -1,6 +1,6 @@
 const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
-const UPLOAD_ENDPOINT = 'https://api.imghippo.com/v1/upload';
-const DELETE_ENDPOINT = 'https://api.imghippo.com/v1/delete';
+const UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
+const DELETE_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_DELETE_ENDPOINT;
 
 export const uploadImageToImghippo = async (file, title = '') => {
   try {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { addBeritaWithImage, updateBeritaWithImage } from "../actions";
+import { addBeritaWithImage, updateBeritaWithImage, deleteImageFromImghippo } from "../actions";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/context/auth";
 import RichTextEditor from "./RichTextEditor";
@@ -19,6 +19,7 @@ export default function BeritaForm({
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [imageDeleteUrl, setImageDeleteUrl] = useState("");
   const [mounted, setMounted] = useState(false);
   const mountedRef = useRef(false);
   const judulRef = useRef(null);
@@ -55,6 +56,7 @@ export default function BeritaForm({
         gambar: berita.gambar || "",
       });
       setImagePreview(berita.gambar || "");
+      setImageDeleteUrl(berita.deleteUrl || "");
 
       // Update judul content without affecting cursor position
       if (judulRef.current && berita.judul) {
@@ -120,9 +122,9 @@ export default function BeritaForm({
 
       const file = e.target.files[0];
       if (file) {
-        // Check file size (50MB limit for Imghippo)
-        if (file.size > 50 * 1024 * 1024) {
-          toast.error("Ukuran file terlalu besar. Maksimal 50MB");
+        // Check file size (3MB limit)
+        if (file.size > 3 * 1024 * 1024) {
+          toast.error("Ukuran file terlalu besar. Maksimal 3MB");
           return;
         }
 
@@ -269,10 +271,18 @@ export default function BeritaForm({
                         </label>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             if (!mountedRef.current) return;
+                            if (imageDeleteUrl) {
+                              try {
+                                await deleteImageFromImghippo(imageDeleteUrl);
+                              } catch (error) {
+                                console.error("Error deleting image:", error);
+                              }
+                            }
                             setImagePreview("");
                             setImageFile(null);
+                            setImageDeleteUrl("");
                           }}
                           className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                         >

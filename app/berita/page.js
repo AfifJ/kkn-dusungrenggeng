@@ -1,41 +1,61 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where, limit, startAfter } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { beritaData } from "../../data/berita";
 
 export default function BeritaPage() {
   const [berita, setBerita] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const lastDocRef = useRef(null);
+  const isInitialLoad = useRef(true);
+
+  const fetchBerita = async (reset = false) => {
+    try {
+      setLoading(true);
+      
+      if (reset) {
+        lastDocRef.current = null;
+        isInitialLoad.current = true;
+      }
+
+      let q = query(
+        collection(db, "berita"),
+        where("status", "==", "published"),
+        orderBy("createdAt", "desc"),
+        limit(10)
+      );
+
+      if (lastDocRef.current && !reset) {
+        q = query(q, startAfter(lastDocRef.current));
+      }
+
+      const querySnapshot = await getDocs(q);
+      const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+      
+      const beritaList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+        setBerita(prev => reset ? beritaList : [...prev, ...beritaList]);
+        lastDocRef.current = lastVisible;
+        setHasMore(querySnapshot.docs.length === 10);
+    } catch (error) {
+      console.error("Error fetching berita:", error);
+      setBerita([]);
+    } finally {
+      setLoading(false);
+      isInitialLoad.current = false;
+    }
+  };
 
   useEffect(() => {
-    const fetchBerita = async () => {
-      try {
-        const q = query(
-          collection(db, "berita"),
-          where("status", "==", "published"),
-          orderBy("createdAt", "desc")
-        );
-        const querySnapshot = await getDocs(q);
-        
-        const beritaList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        setBerita(beritaList.length > 0 ? beritaList : beritaData.filter(item => item.status === "published"));
-      } catch (error) {
-        console.error("Error fetching berita:", error);
-        setBerita(beritaData.filter(item => item.status === "published")); // Fallback to static data dengan filter published
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBerita();
+    fetchBerita(true);
   }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -203,6 +223,25 @@ export default function BeritaPage() {
                 Kembali ke Beranda
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {hasMore && !loading && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => fetchBerita()}
+              className="inline-flex items-center rounded-lg bg-green-700 px-6 py-3 font-medium text-white transition-colors hover:bg-green-800"
+            >
+              Muat Lebih Banyak
+            </button>
+          </div>
+        )}
+
+        {/* Loading Indicator */}
+        {loading && !isInitialLoad.current && (
+          <div className="mt-8 text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
           </div>
         )}
 

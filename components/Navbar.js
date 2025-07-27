@@ -11,13 +11,13 @@ export default function Navbar() {
 
   const handleNavigation = (item) => {
     setIsMenuOpen(false); // Close mobile menu after click
-    
-    if (item.type === 'page') {
+
+    if (item.type === "page") {
       // Navigate to different page
       router.push(item.href);
-    } else if (item.type === 'section') {
+    } else if (item.type === "section") {
       // Check if we're on homepage
-      if (pathname === '/') {
+      if (pathname === "/") {
         // Scroll to section if on homepage
         const element = document.getElementById(item.sectionId);
         if (element) {
@@ -36,6 +36,7 @@ export default function Navbar() {
     { label: "Produk", type: "page", href: "/produk" },
     { label: "Galeri", type: "page", href: "/galeri" },
     { label: "Kalender", type: "page", href: "/kalender" },
+    { label: "Data Usaha", type: "page", href: "/data-usaha" },
   ];
 
   return (
@@ -57,10 +58,13 @@ export default function Navbar() {
               key={item.label}
               onClick={() => handleNavigation(item)}
               className={`transition hover:text-green-200 cursor-pointer ${
-                (item.type === 'page' && pathname === item.href) ||
-                (item.type === 'section' && pathname === '/' && item.sectionId === 'hero' && item.label === 'Beranda')
-                  ? 'text-green-200 font-semibold'
-                  : ''
+                (item.type === "page" && pathname === item.href) ||
+                (item.type === "section" &&
+                  pathname === "/" &&
+                  item.sectionId === "hero" &&
+                  item.label === "Beranda")
+                  ? "text-green-200 font-semibold"
+                  : ""
               }`}
             >
               {item.label}
@@ -86,10 +90,13 @@ export default function Navbar() {
                 key={item.label}
                 onClick={() => handleNavigation(item)}
                 className={`block w-full text-left py-2 px-2 hover:bg-green-600 rounded transition-colors ${
-                  (item.type === 'page' && pathname === item.href) ||
-                  (item.type === 'section' && pathname === '/' && item.sectionId === 'hero' && item.label === 'Beranda')
-                    ? 'bg-green-600 font-semibold'
-                    : ''
+                  (item.type === "page" && pathname === item.href) ||
+                  (item.type === "section" &&
+                    pathname === "/" &&
+                    item.sectionId === "hero" &&
+                    item.label === "Beranda")
+                    ? "bg-green-600 font-semibold"
+                    : ""
                 }`}
               >
                 {item.label}

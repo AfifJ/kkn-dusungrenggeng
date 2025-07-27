@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import React, { useState } from "react";
+import { validateImageSize } from "@/app/utils/imageValidation";
 
 const ImghippoUploader = () => {
   // State untuk fitur upload
@@ -18,8 +20,8 @@ const ImghippoUploader = () => {
 
   // Konfigurasi API
   const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
-  const UPLOAD_ENDPOINT = "https://api.imghippo.com/v1/upload";
-  const DELETE_ENDPOINT = "https://api.imghippo.com/v1/delete";
+  const UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
+  const DELETE_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_DELETE_ENDPOINT;
 
   // Handler untuk upload gambar
   const handleUpload = async () => {
@@ -27,7 +29,10 @@ const ImghippoUploader = () => {
       setUploadError("Silakan pilih gambar terlebih dahulu");
       return;
     }
-
+    if (!validateImageSize(selectedFile, 3)) {
+      setUploadError("Ukuran gambar maksimal 3MB");
+      return;
+    }
     setUploadLoading(true);
     setUploadError("");
 
@@ -82,7 +87,7 @@ const ImghippoUploader = () => {
 
       let result;
       const contentType = response.headers.get("content-type");
-      
+
       if (contentType && contentType.includes("application/json")) {
         result = await response.json();
       } else {
@@ -216,7 +221,7 @@ const ImghippoUploader = () => {
             <h3 style={{ color: "#27ae60" }}>✔ Berhasil Diunggah!</h3>
             <div style={{ display: "flex", marginTop: "15px", gap: "20px" }}>
               <div style={{ flex: 1 }}>
-                <img
+                <Image
                   src={uploadData.url}
                   alt={uploadData.title}
                   style={{
@@ -302,7 +307,6 @@ const ImghippoUploader = () => {
             type="text"
             value={deleteUrl}
             onChange={(e) => setDeleteUrl(e.target.value)}
-            placeholder="https://i.imghippo.com/files/00a001111.jpg"
             disabled={deleteLoading}
             style={{ width: "100%", padding: "8px" }}
           />

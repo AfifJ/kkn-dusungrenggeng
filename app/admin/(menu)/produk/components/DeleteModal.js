@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, X } from "lucide-react";
+import Image from "next/image";
 
 export default function DeleteModal({ produk, onConfirm, onCancel }) {
   return (
@@ -37,7 +38,9 @@ export default function DeleteModal({ produk, onConfirm, onCancel }) {
             </p>
             <div className="mt-2 flex items-center space-x-3">
               {produk?.gambar && (
-                <img
+                <Image
+                  width={48}
+                  height={48}
                   src={produk.gambar}
                   alt={produk.nama}
                   className="w-12 h-12 object-cover rounded-lg border border-gray-200"

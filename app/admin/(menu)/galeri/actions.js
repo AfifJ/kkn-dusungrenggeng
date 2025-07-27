@@ -1,37 +1,37 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
   orderBy,
   serverTimestamp,
   getDoc,
-  where
+  where,
 } from "firebase/firestore";
 import { db } from "@/firebase/client";
 
 const COLLECTION_NAME = "galeri";
 
 // Upload image to ImgHippo
-export const uploadImageToImghippo = async (file, title = '') => {
+export const uploadImageToImghippo = async (file, title = "") => {
   try {
     if (!file) {
       throw new Error("No file provided");
     }
 
-    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-    const UPLOAD_ENDPOINT = 'https://api.imghippo.com/v1/upload';
+    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+    const UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
 
     const formData = new FormData();
-    formData.append('api_key', API_KEY);
-    formData.append('file', file);
-    if (title) formData.append('title', title);
+    formData.append("api_key", API_KEY);
+    formData.append("file", file);
+    if (title) formData.append("title", title);
 
     const response = await fetch(UPLOAD_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     });
 
@@ -64,34 +64,39 @@ export const deleteImageFromImghippo = async (imageUrl) => {
       return { success: true, message: "No image URL to process" };
     }
 
-    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-    const DELETE_ENDPOINT = 'https://api.imghippo.com/v1/delete';
+    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+    const DELETE_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
 
     const formData = new FormData();
-    formData.append('api_key', API_KEY);
-    formData.append('url', imageUrl);
+    formData.append("api_key", API_KEY);
+    formData.append("url", imageUrl);
 
     const response = await fetch(DELETE_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     });
 
     // Handle 404 - delete endpoint might not exist
     if (response.status === 404) {
-      console.warn("Delete endpoint not found - image might have been deleted already");
+      console.warn(
+        "Delete endpoint not found - image might have been deleted already"
+      );
       return { success: true, message: "Image delete endpoint not found" };
     }
 
     // Check if response is ok
     if (!response.ok) {
       console.error(`HTTP error! status: ${response.status}`);
-      return { success: false, message: `HTTP error! status: ${response.status}` };
+      return {
+        success: false,
+        message: `HTTP error! status: ${response.status}`,
+      };
     }
 
-    const contentType = response.headers.get('content-type');
-    
+    const contentType = response.headers.get("content-type");
+
     // Check if response is JSON
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType && contentType.includes("application/json")) {
       const result = await response.json();
       return {
         success: true,
@@ -109,7 +114,7 @@ export const deleteImageFromImghippo = async (imageUrl) => {
     }
   } catch (error) {
     console.error("Error deleting image from Imghippo:", error);
-    
+
     // Return a warning instead of throwing error to avoid breaking main operations
     return {
       success: false,
@@ -142,10 +147,10 @@ export const getGaleri = async () => {
       orderBy("createdAt", "desc")
     );
     const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => ({
+
+    return querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
   } catch (error) {
     console.error("Error getting galeri:", error);
@@ -156,7 +161,7 @@ export const getGaleri = async () => {
 // Add new galeri with image
 export const addGaleriWithImage = async (data, imageFile, userEmail) => {
   let imageData = null;
-  
+
   try {
     // Upload image if provided
     if (imageFile) {
@@ -204,7 +209,7 @@ export const updateGaleriWithImage = async (id, data, imageFile, userEmail) => {
     // Get current galeri data to check for existing image
     const galeriRef = doc(db, COLLECTION_NAME, id);
     const galeriDoc = await getDoc(galeriRef);
-    
+
     if (galeriDoc.exists()) {
       const currentData = galeriDoc.data();
       oldImageUrl = currentData.gambarDeleteUrl;
@@ -213,7 +218,7 @@ export const updateGaleriWithImage = async (id, data, imageFile, userEmail) => {
     // Upload new image if provided
     if (imageFile) {
       imageData = await uploadImageToImghippo(imageFile, data.judul);
-      
+
       // Delete old image if exists
       if (oldImageUrl) {
         await deleteImageFromImghippo(oldImageUrl);
@@ -260,7 +265,7 @@ export const deleteGaleriWithImage = async (id, judul, userEmail) => {
     // Get galeri data to check for existing image
     const galeriRef = doc(db, COLLECTION_NAME, id);
     const galeriDoc = await getDoc(galeriRef);
-    
+
     let oldImageUrl = null;
     if (galeriDoc.exists()) {
       const currentData = galeriDoc.data();
@@ -297,10 +302,7 @@ export const searchGaleri = async (searchTerm, kategori = null) => {
         orderBy("createdAt", "desc")
       );
     } else {
-      q = query(
-        collection(db, COLLECTION_NAME),
-        orderBy("createdAt", "desc")
-      );
+      q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
     }
 
     const querySnapshot = await getDocs(q);

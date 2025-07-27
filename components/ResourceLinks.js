@@ -2,132 +2,84 @@
 
 import Link from "next/link";
 import { Share2, ExternalLink, Heart } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/client";
+import { useEffect, useState } from "react";
 
 export default function ResourceLinks() {
-  const externalResources = [
-    {
-      title: "Pemerintah Kabupaten Magelang",
-      url: "https://magelangkab.go.id",
-      description: "Website resmi Pemerintah Kabupaten Magelang",
-      category: "Pemerintahan"
-    },
-    {
-      title: "Portal Data Desa Indonesia",
-      url: "https://sid.kemendesa.go.id",
-      description: "Sistem Informasi Desa Kementerian Desa",
-      category: "Data Desa"
-    },
-    {
-      title: "Dinas Pertanian Jawa Tengah",
-      url: "https://distan.jatengprov.go.id",
-      description: "Informasi pertanian dan teknologi terbaru",
-      category: "Pertanian"
-    },
-    {
-      title: "Wonderful Indonesia",
-      url: "https://www.indonesia.travel",
-      description: "Portal wisata resmi Indonesia",
-      category: "Wisata"
-    },
-    {
-      title: "Kementerian Desa PDT dan Transmigrasi",
-      url: "https://kemendesa.go.id",
-      description: "Program pemberdayaan desa dan transmigran",
-      category: "Pemberdayaan"
-    },
-    {
-      title: "Badan Standardisasi Nasional",
-      url: "https://bsn.go.id",
-      description: "Standar kualitas produk makanan dan pertanian",
-      category: "Standarisasi"
-    },
-    {
-      title: "Portal Nasional Republik Indonesia",
-      url: "https://indonesia.go.id",
-      description: "Portal informasi resmi pemerintah Indonesia",
-      category: "Pemerintahan"
-    },
-    {
-      title: "Direktorat Jenderal Pembangunan Desa",
-      url: "https://bangdes.kemendesa.go.id",
-      description: "Pembangunan infrastruktur dan ekonomi desa",
-      category: "Pembangunan"
-    }
-  ];
+  const [resources, setResources] = useState({
+    externalResources: [],
+    internalPages: [],
+  });
 
-  const socialMediaLinks = [
-    {
-      name: "Instagram",
-      url: "https://instagram.com/dusungrenggeng",
-      icon: "📷",
-      description: "Foto kegiatan sehari-hari"
-    },
-    {
-      name: "Facebook", 
-      url: "https://facebook.com/dusungrenggeng",
-      icon: "📘",
-      description: "Update dan diskusi masyarakat"
-    },
-    {
-      name: "WhatsApp",
-      url: "https://wa.me/6281234567890",
-      icon: "💬",
-      description: "Chat langsung dengan admin"
-    },
-    {
-      name: "YouTube",
-      url: "https://youtube.com/@dusungrenggeng",
-      icon: "📺", 
-      description: "Video dokumentasi kegiatan"
-    }
-  ];
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const docRef = doc(db, "settings", "website");
+        const docSnap = await getDoc(docRef);
 
-  const shareCurrentPage = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Dusun Grenggeng',
-        text: 'Kunjungi website resmi Dusun Grenggeng - Desa tradisional penghasil tahu berkualitas',
-        url: window.location.origin,
-      });
-    } else {
-      // Fallback to copying to clipboard
-      navigator.clipboard.writeText(window.location.origin);
-      alert('Link website telah disalin ke clipboard!');
-    }
-  };
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setResources({
+            externalResources: data.resources?.externalResources || [],
+            internalPages: data.resources?.internalPages || [],
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching resources:", error);
+      }
+    };
 
-  const internalPages = [
-    {
-      title: "Profil Desa",
-      url: "/#tentang",
-      description: "Sejarah dan profil lengkap Dusun Grenggeng"
-    },
-    {
-      title: "Produk Unggulan",
-      url: "/produk",
-      description: "Tahu tradisional dan hasil pertanian terbaik"
-    },
-    {
-      title: "Kegiatan Desa",
-      url: "/agenda",
-      description: "Jadwal dan agenda kegiatan masyarakat"
-    },
-    {
-      title: "Galeri Foto",
-      url: "/galeri",
-      description: "Dokumentasi kegiatan dan pemandangan desa"
-    },
-    {
-      title: "Berita Terkini",
-      url: "/berita",
-      description: "Informasi dan perkembangan terbaru desa"
-    },
-    {
-      title: "Kalender Kegiatan",
-      url: "/kalender",
-      description: "Jadwal lengkap kegiatan dan acara desa"
-    }
-  ];
+    fetchResources();
+  }, []);
+
+  // Fallback data if Firebase is not available
+  const externalResources =
+    resources.externalResources.length > 0
+      ? resources.externalResources
+      : [
+          {
+            title: "Pemerintah Kabupaten Magelang",
+            url: "https://magelangkab.go.id",
+            description: "Website resmi Pemerintah Kabupaten Magelang",
+          },
+        ];
+
+  const internalPages =
+    resources.internalPages.length > 0
+      ? resources.internalPages
+      : [
+          {
+            title: "Profil Desa",
+            url: "/#tentang",
+            description: "Sejarah dan profil lengkap Dusun Grenggeng",
+          },
+          {
+            title: "Produk Unggulan",
+            url: "/produk",
+            description: "Tahu tradisional dan hasil pertanian terbaik",
+          },
+          {
+            title: "Kegiatan Desa",
+            url: "/agenda",
+            description: "Jadwal dan agenda kegiatan masyarakat",
+          },
+          {
+            title: "Galeri Foto",
+            url: "/galeri",
+            description: "Dokumentasi kegiatan dan pemandangan desa",
+          },
+          {
+            title: "Berita Terkini",
+            url: "/berita",
+            description: "Informasi dan perkembangan terbaru desa",
+          },
+          {
+            title: "Kalender Kegiatan",
+            url: "/kalender",
+            description: "Jadwal lengkap kegiatan dan acara desa",
+          },
+        ];
 
   return (
     <section className="bg-white py-16">
@@ -138,11 +90,12 @@ export default function ResourceLinks() {
           </h2>
           <div className="mx-auto mb-6 h-1 w-20 bg-green-600"></div>
           <p className="mx-auto max-w-2xl text-gray-600">
-            Temukan informasi dan sumber daya yang berguna untuk mengenal lebih dalam tentang Dusun Grenggeng dan sekitarnya
+            Temukan informasi dan sumber daya yang berguna untuk mengenal lebih
+            dalam tentang Dusun Grenggeng dan sekitarnya
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Internal Links */}
           <div className="bg-green-50 rounded-lg p-6">
             <h3 className="text-xl font-bold text-green-800 mb-4">
@@ -171,61 +124,36 @@ export default function ResourceLinks() {
               Sumber Daya External
             </h3>
             <div className="space-y-3 max-h-80 overflow-y-auto">
-              {externalResources.map((resource, index) => (
-                <div key={index} className="border-l-3 border-blue-600 pl-4">
-                  <Link
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-blue-700 hover:text-blue-900 font-medium transition-colors"
-                  >
-                    {resource.title} ↗
-                  </Link>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {resource.description}
-                  </p>
-                  <span className="inline-block text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded mt-2">
-                    {resource.category}
-                  </span>
-                </div>
-              ))}
+              {resources.externalResources.length === 0
+                ? // Skeleton loading
+                  Array.from({ length: 2 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="border-l-3 border-blue-600 pl-4 animate-pulse"
+                    >
+                      <div className="h-4 w-40 bg-blue-200 rounded mb-2"></div>
+                      <div className="h-3 w-64 bg-blue-100 rounded"></div>
+                    </div>
+                  ))
+                : externalResources.map((resource, index) => (
+                    <div
+                      key={index}
+                      className="border-l-3 border-blue-600 pl-4"
+                    >
+                      <Link
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-blue-700 hover:text-blue-900 font-medium transition-colors"
+                      >
+                        {resource.title} ↗
+                      </Link>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {resource.description}
+                      </p>
+                    </div>
+                  ))}
             </div>
-          </div>
-
-          {/* Social Media Section */}
-          <div className="bg-purple-50 rounded-lg p-6">
-            <h3 className="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
-              <Heart className="h-5 w-5" />
-              Ikuti Kami
-            </h3>
-            <div className="space-y-3 mb-6">
-              {socialMediaLinks.map((social, index) => (
-                <div key={index} className="border-l-3 border-purple-600 pl-4">
-                  <Link
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-purple-700 hover:text-purple-900 font-medium transition-colors"
-                  >
-                    <span className="text-lg">{social.icon}</span>
-                    {social.name}
-                    <ExternalLink className="h-4 w-4" />
-                  </Link>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {social.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-            
-            {/* Share Button */}
-            <button
-              onClick={shareCurrentPage}
-              className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <Share2 className="h-4 w-4" />
-              Bagikan Website Ini
-            </button>
           </div>
         </div>
 
@@ -237,13 +165,13 @@ export default function ResourceLinks() {
           <div className="flex flex-wrap justify-center gap-2">
             {[
               "Tahu Tradisional",
-              "Pertanian Organik", 
+              "Pertanian Organik",
               "Wisata Desa",
               "Budaya Jawa",
               "UMKM Desa",
               "Teknologi Pertanian",
               "Gotong Royong",
-              "Ekonomi Kreatif"
+              "Ekonomi Kreatif",
             ].map((topic, index) => (
               <span
                 key={index}

@@ -85,7 +85,7 @@ export default function ProdukUnggulan() {
                 key={item.id || `produk-${index}`}
                 className="flex flex-col md:max-h-64 gap-6 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 transition-shadow duration-300 hover:shadow-md md:flex-row"
               >
-                <div className="h-48 md:h-auto md:w-1/3">
+                <div className="h-48 md:w-1/3">
                   <Image
                     src={item.gambar || "https://images.unsplash.com/photo-1625044081468-a5b8c0b8b195"}
                     alt={item.nama}
@@ -104,7 +104,7 @@ export default function ProdukUnggulan() {
                   <h3 className="mb-2 text-xl font-bold text-gray-800">
                     {item.nama}
                   </h3>
-                  <p className="mb-4 text-gray-600">{item.deskripsi}</p>
+                  <p className="mb-4 text-gray-600 line-clamp-2">{item.deskripsi}</p>
                   <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
                     <span className="text-lg font-semibold text-green-700">
                       {item.harga}

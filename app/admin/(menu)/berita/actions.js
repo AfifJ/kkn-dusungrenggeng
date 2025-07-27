@@ -10,6 +10,7 @@ import {
   where,
   getDoc,
   limit,
+  startAfter,
 } from "firebase/firestore";
 import { db } from "@/firebase/client";
 
@@ -30,8 +31,8 @@ export const getBerita = async () => {
       collection(db, COLLECTION_NAME),
       orderBy("tanggal", "desc")
     );
-    const querySnapshot = await getDocs(q);
 
+    const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -144,7 +145,10 @@ export const searchBerita = async (searchTerm, category = null) => {
         orderBy("tanggal", "desc")
       );
     } else {
-      q = query(collection(db, COLLECTION_NAME), orderBy("tanggal", "desc"));
+      q = query(
+        collection(db, COLLECTION_NAME), 
+        orderBy("tanggal", "desc")
+      );
     }
 
     const querySnapshot = await getDocs(q);
@@ -237,8 +241,8 @@ export const uploadImageToImghippo = async (file, title = '') => {
       throw new Error("No file provided");
     }
 
-    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-    const UPLOAD_ENDPOINT = 'https://api.imghippo.com/v1/upload';
+    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+    const UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
 
     const formData = new FormData();
     formData.append('api_key', API_KEY);
@@ -279,8 +283,8 @@ export const deleteImageFromImghippo = async (imageUrl) => {
       return { success: true, message: "No image URL to process" };
     }
 
-    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-    const DELETE_ENDPOINT = 'https://api.imghippo.com/v1/delete';
+    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+    const DELETE_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_DELETE_ENDPOINT;
 
     const formData = new FormData();
     formData.append('api_key', API_KEY);

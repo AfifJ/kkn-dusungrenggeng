@@ -134,7 +134,6 @@ export default function ImageUploadInput({
                 // Handle error by showing fallback
                 console.log("Image failed to load:", value);
               }}
-              unoptimized={true}
             />
           </div>
         </div>

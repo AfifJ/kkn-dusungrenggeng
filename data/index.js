@@ -1,6 +1,5 @@
 // Central data export file
 export { websiteData } from './website.js';
-export { beritaData } from './berita.js';
 export { produkData } from './produk.js';
 export { galeriData } from './galeri.js';
 export { agendaData } from './agenda.js';
@@ -11,8 +10,6 @@ export const getDataBySection = (section) => {
     case 'website':
     case 'settings':
       return websiteData;
-    case 'berita':
-      return beritaData;
     case 'produk':
       return produkData;
     case 'galeri':
@@ -34,7 +31,6 @@ export const updateDataBySection = (section, newData) => {
 export const validateData = (section, data) => {
   // Add validation logic for each data type
   const requiredFields = {
-    berita: ['judul', 'konten', 'tanggal'],
     produk: ['nama', 'deskripsi', 'harga'],
     galeri: ['title', 'image', 'category'],
     agenda: ['judul', 'tanggal', 'waktu', 'tempat']

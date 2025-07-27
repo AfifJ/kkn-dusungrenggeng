@@ -22,8 +22,8 @@ export const uploadImageToImghippo = async (file, title = '') => {
       throw new Error("No file provided");
     }
 
-    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-    const UPLOAD_ENDPOINT = 'https://api.imghippo.com/v1/upload';
+    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+    const UPLOAD_ENDPOINT = NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
 
     const formData = new FormData();
     formData.append('api_key', API_KEY);
@@ -64,8 +64,8 @@ export const deleteImageFromImghippo = async (imageUrl) => {
       return { success: true, message: "No image URL to process" };
     }
 
-    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-    const DELETE_ENDPOINT = 'https://api.imghippo.com/v1/delete';
+    const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+    const DELETE_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_DELETE_ENDPOINT;
 
     const formData = new FormData();
     formData.append('api_key', API_KEY);

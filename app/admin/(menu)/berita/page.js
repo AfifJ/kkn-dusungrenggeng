@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getBerita, deleteBeritaWithImage, searchBerita } from "./actions";
@@ -21,6 +21,7 @@ export default function AdminBeritaPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [deleteModal, setDeleteModal] = useState({ show: false, berita: null });
+  const isInitialLoad = useRef(true);
 
   const categories = ["Pengumuman", "Kegiatan", "Berita Desa", "Artikel"];
 
@@ -33,11 +34,13 @@ export default function AdminBeritaPage() {
       setLoading(true);
       const data = await getBerita();
       setBerita(data);
+      isInitialLoad.current = false;
     } catch (error) {
       console.error("Error fetching berita:", error);
       toast.error("Gagal memuat berita");
     } finally {
       setLoading(false);
+      isInitialLoad.current = false;
     }
   };
 
@@ -46,11 +49,13 @@ export default function AdminBeritaPage() {
       setLoading(true);
       const data = await searchBerita(searchTerm, selectedCategory);
       setBerita(data);
+      isInitialLoad.current = false;
     } catch (error) {
       console.error("Error searching berita:", error);
       toast.error("Gagal mencari berita");
     } finally {
       setLoading(false);
+      isInitialLoad.current = false;
     }
   };
 
@@ -146,7 +151,7 @@ export default function AdminBeritaPage() {
             </select>
           </div>
           <button
-            onClick={handleSearch}
+            onClick={() => handleSearch(true)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
           >
             Cari
@@ -272,8 +277,16 @@ export default function AdminBeritaPage() {
         </div>
       </div>
 
+
+      {/* Loading Indicator */}
+      {loading && !isInitialLoad.current && (
+        <div className="p-6 text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+        </div>
+      )}
+
       {/* Empty State */}
-      {berita.length === 0 && (
+      {berita.length === 0 && !loading && (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📰</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">

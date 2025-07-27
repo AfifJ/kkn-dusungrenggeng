@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
+import DeleteModal from "@/components/admin/Dialog";
 import {
   Save,
   Plus,
@@ -54,6 +56,8 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("hero");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [resourceToDelete, setResourceToDelete] = useState(null);
 
   useEffect(() => {
     fetchSettings();
@@ -84,10 +88,10 @@ export default function AdminSettings() {
     try {
       const docRef = doc(db, "settings", "website");
       await setDoc(docRef, settings);
-      alert("Pengaturan berhasil disimpan!");
+      toast.success("Pengaturan berhasil disimpan!");
     } catch (error) {
       console.error("Error saving settings:", error);
-      alert("Gagal menyimpan pengaturan");
+      toast.error("Gagal menyimpan pengaturan");
     } finally {
       setSaving(false);
     }
@@ -135,20 +139,6 @@ export default function AdminSettings() {
     });
   };
 
-  const addAlamat = () => {
-    const id = `alamat_${Date.now()}`;
-    setSettings({
-      ...settings,
-      footer: {
-        ...settings.footer,
-        alamat: {
-          ...settings.footer.alamat,
-          [id]: { label: "", alamat: "", icon: "MapPin" },
-        },
-      },
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -159,7 +149,7 @@ export default function AdminSettings() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center sticky top-0 z-10 bg-gray-50 py-4 px-6 -mx-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             Pengaturan Website
@@ -185,6 +175,7 @@ export default function AdminSettings() {
             { id: "sambutan", label: "Sambutan Kepala Dusun" },
             { id: "statistics", label: "Statistik" },
             { id: "footer", label: "Footer" },
+            { id: "resources", label: "Resource Links" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -721,7 +712,216 @@ export default function AdminSettings() {
             </div>
           </div>
         )}
+
+        {activeTab === "resources" && (
+          <div className="space-y-8">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Resource Links
+            </h3>
+
+            <div className="space-y-6">
+              <div>
+                <div className="mb-4">
+                  <h4 className="font-medium text-gray-900">Internal Pages</h4>
+                  <p className="text-sm text-gray-500">Halaman internal website (tidak dapat diubah)</p>
+                </div>
+
+                <div className="space-y-4">
+                  {(settings.resources?.internalPages || []).map((page, index) => (
+                    <div key={page.id || index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex justify-between items-center mb-4">
+                        <h5 className="font-medium">Halaman #{index + 1}</h5>
+                        <button
+                          onClick={() => {
+                            setSettings({
+                              ...settings,
+                              resources: {
+                                ...settings.resources,
+                                internalPages: (settings.resources?.internalPages || []).filter((_, i) => i !== index)
+                              }
+                            });
+                          }}
+                          className="text-red-600 hover:text-red-800 p-1"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Judul</label>
+                          <input
+                            type="text"
+                            value={page.title}
+                            readOnly
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">URL</label>
+                          <input
+                            type="text"
+                            value={page.url}
+                            readOnly
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                          <textarea
+                            value={page.description}
+                            readOnly
+                            rows={2}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="font-medium text-gray-900">External Resources</h4>
+                  <button
+                    onClick={() => {
+                      const newId = Date.now();
+                      setSettings({
+                        ...settings,
+                        resources: {
+                          ...settings.resources,
+                          externalResources: [
+                            ...(settings.resources?.externalResources || []),
+                            {
+                              id: newId,
+                              title: "",
+                              url: "",
+                              description: "",
+                              category: ""
+                            }
+                          ]
+                        }
+                      });
+                    }}
+                    className="inline-flex items-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Tambah Resource
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {(settings.resources?.externalResources || []).map((resource, index) => (
+                    <div key={resource.id || index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div className="flex justify-between items-center mb-4">
+                          <h5 className="font-medium">Resource #{index + 1}</h5>
+                          <button
+                            onClick={() => {
+                              setResourceToDelete(resource.id);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-800 p-1"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Judul</label>
+                          <input
+                            type="text"
+                            value={resource.title}
+                            onChange={(e) => {
+                              const newResources = [...(settings.resources?.externalResources || [])];
+                              newResources[index].title = e.target.value;
+                              setSettings({
+                                ...settings,
+                                resources: {
+                                  ...settings.resources,
+                                  externalResources: newResources
+                                }
+                              });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">URL</label>
+                          <input
+                            type="text"
+                            value={resource.url}
+                            onChange={(e) => {
+                              const newResources = [...(settings.resources?.externalResources || [])];
+                              newResources[index].url = e.target.value;
+                              setSettings({
+                                ...settings,
+                                resources: {
+                                  ...settings.resources,
+                                  externalResources: newResources
+                                }
+                              });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                          <textarea
+                            value={resource.description}
+                            onChange={(e) => {
+                              const newResources = [...(settings.resources?.externalResources || [])];
+                              newResources[index].description = e.target.value;
+                              setSettings({
+                                ...settings,
+                                resources: {
+                                  ...settings.resources,
+                                  externalResources: newResources
+                                }
+                              });
+                            }}
+                            rows={2}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          />
+                        </div>
+
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          if (resourceToDelete) {
+            setSettings({
+              ...settings,
+              resources: {
+                ...settings.resources,
+                externalResources: (settings.resources?.externalResources || []).filter(
+                  (r) => r.id !== resourceToDelete
+                ),
+              },
+            });
+            setResourceToDelete(null);
+          }
+          setShowDeleteModal(false);
+        }}
+        title="Hapus Resource"
+        message="Apakah Anda yakin ingin menghapus resource ini?"
+      />
     </div>
   );
 }

@@ -25,6 +25,15 @@ const navigation = [
   { name: "Produk", href: "/admin/produk", icon: Package },
   { name: "Galeri", href: "/admin/galeri", icon: Image },
   { name: "Agenda", href: "/admin/agenda", icon: Calendar },
+  { 
+    name: "Data Usaha", 
+    href: "/admin/data-usaha", 
+    icon: Database,
+    subItems: [
+      { name: "Daftar Usaha", href: "/admin/data-usaha" },
+      { name: "Upload JSON", href: "/admin/data-usaha/upload" }
+    ]
+  },
   { name: "Data Dummy", href: "/admin/dummy", icon: Database },
 ];
 
@@ -85,25 +94,45 @@ export default function AdminLayout({ children }) {
         <nav className="flex-1 px-3 py-6 overflow-y-auto">
           <div className="space-y-1">
             {navigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || 
+                (item.subItems && item.subItems.some(subItem => pathname === subItem.href));
               return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isActive
-                      ? 'bg-green-100 text-green-700 border-r-2 border-green-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                  onClick={handleLinkClick}
-                >
-                  <item.icon
-                    className={`mr-3 h-5 w-5 ${
-                      isActive ? 'text-green-700' : 'text-gray-400 group-hover:text-gray-500'
+                <div key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      isActive
+                        ? 'bg-green-100 text-green-700 border-r-2 border-green-700'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
-                  />
-                  {item.name}
-                </Link>
+                    onClick={handleLinkClick}
+                  >
+                    <item.icon
+                      className={`mr-3 h-5 w-5 ${
+                        isActive ? 'text-green-700' : 'text-gray-400 group-hover:text-gray-500'
+                      }`}
+                    />
+                    {item.name}
+                  </Link>
+                  {item.subItems && isActive && (
+                    <div className="ml-8 mt-1 space-y-1">
+                      {item.subItems.map((subItem) => (
+                        <Link
+                          key={subItem.name}
+                          href={subItem.href}
+                          className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                            pathname === subItem.href
+                              ? 'bg-green-50 text-green-700'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          }`}
+                          onClick={handleLinkClick}
+                        >
+                          {subItem.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -191,7 +220,7 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-gray-50">
+        <main className="flex-1 p-x4 lg:px-6 overflow-y-auto bg-gray-50">
           {children}
         </main>
       </div>

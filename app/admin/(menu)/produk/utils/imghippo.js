@@ -1,20 +1,20 @@
-const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY || '0f9a78dcc8d06f6cde2641718afaad7c';
-const UPLOAD_ENDPOINT = 'https://api.imghippo.com/v1/upload';
-const DELETE_ENDPOINT = 'https://api.imghippo.com/v1/delete';
+const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
+const UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
+const DELETE_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_DELETE_ENDPOINT;
 
-export const uploadImageToImghippo = async (file, title = '') => {
+export const uploadImageToImghippo = async (file, title = "") => {
   try {
     if (!file) {
       throw new Error("No file provided");
     }
 
     const formData = new FormData();
-    formData.append('api_key', API_KEY);
-    formData.append('file', file);
-    if (title) formData.append('title', title);
+    formData.append("api_key", API_KEY);
+    formData.append("file", file);
+    if (title) formData.append("title", title);
 
     const response = await fetch(UPLOAD_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     });
 
@@ -47,11 +47,11 @@ export const deleteImageFromImghippo = async (imageUrl) => {
     }
 
     const formData = new FormData();
-    formData.append('api_key', API_KEY);
-    formData.append('url', imageUrl);
+    formData.append("api_key", API_KEY);
+    formData.append("url", imageUrl);
 
     const response = await fetch(DELETE_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       body: formData,
     });
 
@@ -72,15 +72,20 @@ export const deleteImageFromImghippo = async (imageUrl) => {
   }
 };
 
-export const compressImage = (file, maxWidth = 1920, maxHeight = 1080, quality = 0.8) => {
+export const compressImage = (
+  file,
+  maxWidth = 1920,
+  maxHeight = 1080,
+  quality = 0.8
+) => {
   return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
-    
+
     img.onload = () => {
       let { width, height } = img;
-      
+
       if (width > height) {
         if (width > maxWidth) {
           height = (height * maxWidth) / width;
@@ -92,14 +97,14 @@ export const compressImage = (file, maxWidth = 1920, maxHeight = 1080, quality =
           height = maxHeight;
         }
       }
-      
+
       canvas.width = width;
       canvas.height = height;
-      
+
       ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob(resolve, 'image/jpeg', quality);
+      canvas.toBlob(resolve, "image/jpeg", quality);
     };
-    
+
     img.src = URL.createObjectURL(file);
   });
 };

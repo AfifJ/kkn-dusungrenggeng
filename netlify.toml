@@ -5,9 +5,6 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[build.environment]
-  NETLIFY_NEXT_PLUGIN_SKIP = "true"
-
 # Disable automatic blobs feature
 [functions]
   included_files = ["!node_modules/**/*"]
