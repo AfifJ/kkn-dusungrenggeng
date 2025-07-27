@@ -35,17 +35,7 @@ export default function BeritaTerbaru() {
         setBerita(beritaList);
       } catch (error) {
         console.error("Error fetching berita:", error);
-        // Fallback ke data statis dan filter published
-        try {
-          const { beritaData } = await import("../data/berita");
-          const publishedBerita = beritaData.filter(
-            (item) => item.status === "published"
-          );
-          setBerita(publishedBerita.slice(0, 3));
-        } catch (importError) {
-          console.error("Error importing berita data:", importError);
-          setBerita([]);
-        }
+        setBerita([]);
       } finally {
         setLoading(false);
       }

@@ -1,7 +1,4 @@
-import { beritaData } from '@/data/berita';
-import { produkData } from '@/data/produk';
-import { agendaData } from '@/data/agenda';
-import { galeriData } from '@/data/galeri';
+import { db } from '@/firebase/server';
 
 export default async function sitemap() {
   const baseUrl = 'https://dusungrenggeng.netlify.app';
@@ -47,42 +44,50 @@ export default async function sitemap() {
   ];
 
   try {
-    // Dynamic routes - berita (using static data for now)
-    const beritaRoutes = beritaData
-      .filter(item => item.status === "published")
-      .map((item) => ({
-        url: `${baseUrl}/berita/${item.slug || item.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
-        lastModified: item.tanggal ? new Date(item.tanggal) : new Date(),
+    // Fetch data from Firebase
+    const [beritaSnapshot, produkSnapshot, agendaSnapshot, galeriSnapshot] = await Promise.all([
+      db.collection('berita').get(),
+      db.collection('produk').get(),
+      db.collection('agenda').get(),
+      db.collection('galeri').get()
+    ]);
+
+    // Dynamic routes - berita
+    const beritaRoutes = beritaSnapshot.docs
+      .filter(doc => doc.data().status === "published")
+      .map(doc => ({
+        url: `${baseUrl}/berita/${doc.data().slug || doc.data().judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+        lastModified: doc.data().tanggal ? new Date(doc.data().tanggal) : new Date(),
         changeFrequency: 'monthly',
         priority: 0.6,
       }));
 
-    // Dynamic routes - produk (using static data for now)
-    const produkRoutes = produkData
-      .filter(item => item.status === "published" || !item.status)
-      .map((item, index) => ({
-        url: `${baseUrl}/produk/${item.slug || item.nama.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+    // Dynamic routes - produk
+    const produkRoutes = produkSnapshot.docs
+      .filter(doc => doc.data().status === "published" || !doc.data().status)
+      .map(doc => ({
+        url: `${baseUrl}/produk/${doc.data().slug || doc.data().nama.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.5,
       }));
 
     // Dynamic routes - agenda
-    const agendaRoutes = agendaData
-      .filter(item => item.status === "scheduled" || !item.status)
-      .map((item) => ({
-        url: `${baseUrl}/agenda/${item.slug || item.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
-        lastModified: item.tanggal ? new Date(item.tanggal) : new Date(),
+    const agendaRoutes = agendaSnapshot.docs
+      .filter(doc => doc.data().status === "scheduled" || !doc.data().status)
+      .map(doc => ({
+        url: `${baseUrl}/agenda/${doc.data().slug || doc.data().judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+        lastModified: doc.data().tanggal ? new Date(doc.data().tanggal) : new Date(),
         changeFrequency: 'weekly',
         priority: 0.4,
       }));
 
     // Dynamic routes - galeri
-    const galeriRoutes = galeriData
-      .filter(item => item.status === "published" || !item.status)
-      .map((item, index) => ({
-        url: `${baseUrl}/galeri/${item.slug || item.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
-        lastModified: item.tanggal ? new Date(item.tanggal) : new Date(),
+    const galeriRoutes = galeriSnapshot.docs
+      .filter(doc => doc.data().status === "published" || !doc.data().status)
+      .map(doc => ({
+        url: `${baseUrl}/galeri/${doc.data().slug || doc.data().judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '')}`,
+        lastModified: doc.data().tanggal ? new Date(doc.data().tanggal) : new Date(),
         changeFrequency: 'monthly',
         priority: 0.4,
       }));

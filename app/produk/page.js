@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { produkData } from "@/data/produk";
 
 export default function ProdukPage() {
   const [produk, setProduk] = useState([]);
@@ -24,10 +23,10 @@ export default function ProdukPage() {
           ...doc.data()
         }));
         
-        setProduk(produkList.length > 0 ? produkList : produkData);
+        setProduk(produkList);
       } catch (error) {
         console.error("Error fetching produk:", error);
-        setProduk(produkData); // Fallback to static data
+        setProduk([]);
       } finally {
         setLoading(false);
       }
@@ -97,7 +96,7 @@ export default function ProdukPage() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : produk.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {produk.map((item) => (
               <div
@@ -131,6 +130,15 @@ export default function ProdukPage() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+            <h3 className="mb-2 text-xl font-bold text-gray-800">
+              Belum ada produk tersedia
+            </h3>
+            <p className="text-gray-600">
+              Produk akan segera ditambahkan
+            </p>
           </div>
         )}
 

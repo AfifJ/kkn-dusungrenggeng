@@ -23,7 +23,7 @@ export const uploadImageToImghippo = async (file, title = '') => {
     }
 
     const API_KEY = process.env.NEXT_PUBLIC_IMGHIPPO_API_KEY;
-    const UPLOAD_ENDPOINT = NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
+    const UPLOAD_ENDPOINT = process.env.NEXT_PUBLIC_IMGHIPPO_UPLOAD_ENDPOINT;
 
     const formData = new FormData();
     formData.append('api_key', API_KEY);

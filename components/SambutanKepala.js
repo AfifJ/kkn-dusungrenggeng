@@ -2,10 +2,9 @@
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { websiteData } from "@/data/website";
 
 export default function SambutanKepala() {
-  const [settings, setSettings] = useState(websiteData);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,12 +18,9 @@ export default function SambutanKepala() {
       
       if (docSnap.exists()) {
         setSettings(docSnap.data());
-      } else {
-        setSettings(websiteData);
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
-      setSettings(websiteData);
     } finally {
       setLoading(false);
     }
@@ -43,7 +39,7 @@ export default function SambutanKepala() {
             <div className="w-full p-6 md:p-8">
               <div className="mb-4">
                 <h3 className="text-2xl font-bold text-green-700">
-                  {settings.sambutan?.nama || "Bapak Sutrisno"}
+                  {settings?.sambutan?.nama || "Bapak Sutrisno"}
                 </h3>
                 <p className="text-green-600">
                   Kepala Dusun Grenggeng
@@ -52,7 +48,7 @@ export default function SambutanKepala() {
 
               <div className="prose text-gray-700">
                 <p>
-                  {settings.sambutan?.paragraf || "Dengan segala kerendahan hati, saya menyambut Anda di website resmi Dusun Grenggeng. Dusun kami yang kecil ini telah dikenal sebagai penghasil tahu berkualitas dan hasil pertanian yang melimpah. Kami bangga dengan warisan kuliner tahu tradisional yang telah dipertahankan secara turun-temurun, serta semangat gotong royong masyarakat dalam mengelola hasil bumi. Melalui website ini, kami berharap dapat memperkenalkan kekayaan alam dan budaya Dusun Grenggeng kepada lebih banyak orang. Terima kasih atas kunjungan Anda."}
+                  {settings?.sambutan?.paragraf || "Dengan segala kerendahan hati, saya menyambut Anda di website resmi Dusun Grenggeng. Dusun kami yang kecil ini telah dikenal sebagai penghasil tahu berkualitas dan hasil pertanian yang melimpah. Kami bangga dengan warisan kuliner tahu tradisional yang telah dipertahankan secara turun-temurun, serta semangat gotong royong masyarakat dalam mengelola hasil bumi. Melalui website ini, kami berharap dapat memperkenalkan kekayaan alam dan budaya Dusun Grenggeng kepada lebih banyak orang. Terima kasih atas kunjungan Anda."}
                 </p>
               </div>
             </div>

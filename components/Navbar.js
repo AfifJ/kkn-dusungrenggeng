@@ -11,27 +11,15 @@ export default function Navbar() {
 
   const handleNavigation = (item) => {
     setIsMenuOpen(false); // Close mobile menu after click
-
     if (item.type === "page") {
-      // Navigate to different page
       router.push(item.href);
     } else if (item.type === "section") {
-      // Check if we're on homepage
-      if (pathname === "/") {
-        // Scroll to section if on homepage
-        const element = document.getElementById(item.sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      } else {
-        // Navigate to homepage first, then scroll
-        router.push(`/#${item.sectionId}`);
-      }
+      router.push(`/#${item.sectionId}`);
     }
   };
 
   const navItems = [
-    { label: "Beranda", type: "section", sectionId: "hero" },
+    { label: "Beranda", type: "page", href: "/" },
     { label: "Berita", type: "page", href: "/berita" },
     { label: "Produk", type: "page", href: "/produk" },
     { label: "Galeri", type: "page", href: "/galeri" },
@@ -54,10 +42,10 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden space-x-6 md:flex">
           {navItems.map((item) => (
-            <button
+            <Link
               key={item.label}
-              onClick={() => handleNavigation(item)}
-              className={`transition hover:text-green-200 cursor-pointer ${
+              href={item.type === "page" ? item.href : `/#${item.sectionId}`}
+              className={`transition hover:text-green-200 ${
                 (item.type === "page" && pathname === item.href) ||
                 (item.type === "section" &&
                   pathname === "/" &&
@@ -68,7 +56,7 @@ export default function Navbar() {
               }`}
             >
               {item.label}
-            </button>
+            </Link>
           ))}
         </div>
 
@@ -86,9 +74,9 @@ export default function Navbar() {
         <div className="md:hidden bg-green-700">
           <div className="px-4 py-2 space-y-2">
             {navItems.map((item) => (
-              <button
+              <Link
                 key={item.label}
-                onClick={() => handleNavigation(item)}
+                href={item.type === "page" ? item.href : `/#${item.sectionId}`}
                 className={`block w-full text-left py-2 px-2 hover:bg-green-600 rounded transition-colors ${
                   (item.type === "page" && pathname === item.href) ||
                   (item.type === "section" &&
@@ -100,7 +88,7 @@ export default function Navbar() {
                 }`}
               >
                 {item.label}
-              </button>
+              </Link>
             ))}
           </div>
         </div>

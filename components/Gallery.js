@@ -24,23 +24,10 @@ export default function Gallery() {
           ...doc.data()
         }));
         
-        if (galeriList.length > 0) {
-          setGaleriData(galeriList);
-        } else {
-          // Fallback to import if no data in Firebase
-          const { galeriData: fallbackData } = await import("../data/galeri");
-          setGaleriData(fallbackData.slice(0, 6));
-        }
+        setGaleriData(galeriList);
       } catch (error) {
         console.error("Error fetching galeri:", error);
-        // Fallback to import if Firebase fails
-        try {
-          const { galeriData: fallbackData } = await import("../data/galeri");
-          setGaleriData(fallbackData.slice(0, 6));
-        } catch (importError) {
-          console.error("Error importing galeri data:", importError);
-          setGaleriData([]);
-        }
+        setGaleriData([]);
       } finally {
         setLoading(false);
       }

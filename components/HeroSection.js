@@ -3,10 +3,15 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { websiteData } from "@/data/website";
 
 export default function HeroSection() {
-  const [settings, setSettings] = useState(websiteData);
+  const [settings, setSettings] = useState({
+    hero: {
+      title: "Selamat Datang di Dusun Grenggeng",
+      subtitle: "Desa penghasil tahu dan hasil tani berkualitas dengan keindahan alam yang mempesona.",
+      backgroundImage: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae"
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,12 +25,9 @@ export default function HeroSection() {
       
       if (docSnap.exists()) {
         setSettings(docSnap.data());
-      } else {
-        setSettings(websiteData);
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
-      setSettings(websiteData);
     } finally {
       setLoading(false);
     }

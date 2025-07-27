@@ -24,7 +24,6 @@ export default function GaleriAdminPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingGaleri, setEditingGaleri] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ show: false, galeri: null });
-  const [viewMode, setViewMode] = useState("grid"); // "grid" or "table"
 
   const categories = ["Kegiatan", "Pertanian", "Acara", "Infrastruktur", "Sosial"];
 
@@ -63,33 +62,29 @@ export default function GaleriAdminPage() {
     setShowForm(true);
   };
 
-  const handleDelete = (id, title) => {
+  const handleDelete = (galeriItem) => {
     confirm(
-      `Apakah Anda yakin ingin menghapus gambar "${title}"?`,
-      () => confirmDelete(id),
+      `Apakah Anda yakin ingin menghapus gambar "${galeriItem.judul}"?`,
+      async () => {
+        try {
+          setLoading(true);
+          await deleteGaleriWithImage(galeriItem.id, galeriItem.judul, user.email);
+          toast.success("Foto galeri berhasil dihapus");
+          fetchGaleri();
+        } catch (error) {
+          console.error("Error deleting galeri:", error);
+          toast.error("Gagal menghapus foto galeri");
+        } finally {
+          setLoading(false);
+          closeDialog();
+        }
+      },
       {
         title: "Hapus Gambar",
         type: "error",
         confirmText: "Hapus"
       }
     );
-  };
-
-  const confirmDelete = async (id) => {
-    try {
-      setLoading(true);
-      const galeriItem = galeri.find(item => item.id === id);
-      await deleteGaleriWithImage(id, galeriItem?.judul || "Galeri", user.email);
-      toast.success("Foto galeri berhasil dihapus");
-      setDeleteModal({ show: false, galeri: null });
-      fetchGaleri();
-    } catch (error) {
-      console.error("Error deleting galeri:", error);
-      toast.error("Gagal menghapus foto galeri");
-    } finally {
-      setLoading(false);
-      closeDialog();
-    }
   };
 
   const handleFormSuccess = () => {
@@ -120,29 +115,6 @@ export default function GaleriAdminPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Kelola Galeri</h1>
         <div className="flex items-center space-x-3">
-          {/* View Toggle */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === "grid"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Grid
-            </button>
-            <button
-              onClick={() => setViewMode("table")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                viewMode === "table"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Table
-            </button>
-          </div>
           
           <button
             onClick={() => setShowForm(true)}
@@ -199,8 +171,7 @@ export default function GaleriAdminPage() {
       </div>
 
       {/* Galeri Content */}
-      {viewMode === "grid" ? (
-        /* Grid View */
+      {/* Grid View */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {galeri.map((item) => (
             <div key={item.id} className="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
@@ -237,7 +208,7 @@ export default function GaleriAdminPage() {
                       </svg>
                     </button>
                     <button
-                      onClick={() => setDeleteModal({ show: true, galeri: item })}
+                      onClick={() => handleDelete(item)}
                       className="bg-white/90 hover:bg-white text-red-600 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,110 +243,6 @@ export default function GaleriAdminPage() {
             </div>
           ))}
         </div>
-      ) : (
-        /* Table View */
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Foto
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kategori
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fotografer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tanggal
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {galeri.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {item.gambar && (
-                          <div className="h-12 w-12 flex-shrink-0 mr-4">
-                            <Image
-                              src={item.gambar}
-                              alt={item.judul}
-                              width={48}
-                              height={48}
-                              className="h-12 w-12 rounded-lg object-cover border border-gray-200"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900 line-clamp-2">
-                            {item.judul}
-                          </div>
-                          <div className="text-sm text-gray-500 line-clamp-1">
-                            {item.deskripsi}
-                          </div>
-                          {item.imageSize && (
-                            <div className="text-xs text-gray-400">
-                              {item.imageExtension} • {(item.imageSize / 1024).toFixed(1)} KB
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                        {item.kategori}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          item.status === "published"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {item.status === "published" ? "Terbit" : "Draft"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.fotografer}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(item.tanggal)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="text-blue-600 hover:text-blue-900 transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setDeleteModal({ show: true, galeri: item })}
-                        className="text-red-600 hover:text-red-900 transition-colors"
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* Empty State */}
       {galeri.length === 0 && (
@@ -395,15 +262,6 @@ export default function GaleriAdminPage() {
             setShowForm(false);
             setEditingGaleri(null);
           }}
-        />
-      )}
-
-      {/* Delete Modal */}
-      {deleteModal.show && (
-        <DeleteModal
-          galeri={deleteModal.galeri}
-          onConfirm={() => handleDelete(deleteModal.galeri)}
-          onCancel={() => setDeleteModal({ show: false, galeri: null })}
         />
       )}
 

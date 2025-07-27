@@ -4,7 +4,6 @@ import { Calendar, CheckCircle, Clock, MapPin } from "lucide-react";
 import Link from "next/link";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { agendaData } from "@/data/agenda";
 
 export default function AgendaKegiatan() {
   const [agendaGroups, setAgendaGroups] = useState([]);
@@ -16,47 +15,13 @@ export default function AgendaKegiatan() {
         const q = query(
           collection(db, "agenda"),
           orderBy("tanggal", "asc"),
+          orderBy("waktu", "asc"),
           limit(5)
         );
         const querySnapshot = await getDocs(q);
         
         if (querySnapshot.empty) {
-          // Jika tidak ada data di Firebase, gunakan data statis
-          const today = new Date();
-          const fallbackAgenda = agendaData.slice(0, 3).map((item, index) => {
-            const futureDate = new Date(today);
-            futureDate.setDate(today.getDate() + (index + 1) * 3); // 3, 6, 9 hari ke depan
-            return {
-              ...item,
-              tanggal: futureDate.toISOString().split('T')[0]
-            };
-          });
-          
-          const groupedByDate = fallbackAgenda.reduce((acc, item) => {
-            const dateKey = item.tanggal;
-            if (!acc[dateKey]) {
-              acc[dateKey] = {
-                date: new Date(item.tanggal).toLocaleDateString("id-ID", {
-                  weekday: "long",
-                  year: "numeric", 
-                  month: "long",
-                  day: "numeric"
-                }),
-                activities: [],
-              };
-            }
-            acc[dateKey].activities.push({
-              id: item.id,
-              time: item.waktu,
-              title: item.judul,
-              description: item.deskripsi,
-              location: item.tempat,
-              completed: item.status === "selesai"
-            });
-            return acc;
-          }, {});
-          
-          setAgendaGroups(Object.values(groupedByDate));
+          setAgendaGroups([]);
         } else {
           const agendaList = querySnapshot.docs.map(doc => ({
             id: doc.id,
@@ -82,7 +47,11 @@ export default function AgendaKegiatan() {
               title: item.judul,
               description: item.deskripsi,
               location: item.tempat,
-              completed: item.status === "selesai"
+              category: item.kategori,
+              organizer: item.penyelenggara,
+              participants: item.peserta,
+              priority: item.prioritas,
+              completed: item.status === "completed"
             });
             return acc;
           }, {});
@@ -91,42 +60,7 @@ export default function AgendaKegiatan() {
         }
       } catch (error) {
         console.error("Error fetching agenda:", error);
-        // Fallback ke data statis jika terjadi error
-        const today = new Date();
-        const fallbackAgenda = agendaData.slice(0, 3).map((item, index) => {
-          const futureDate = new Date(today);
-          futureDate.setDate(today.getDate() + (index + 1) * 3);
-          return {
-            ...item,
-            tanggal: futureDate.toISOString().split('T')[0]
-          };
-        });
-        
-        const groupedByDate = fallbackAgenda.reduce((acc, item) => {
-          const dateKey = item.tanggal;
-          if (!acc[dateKey]) {
-            acc[dateKey] = {
-              date: new Date(item.tanggal).toLocaleDateString("id-ID", {
-                weekday: "long",
-                year: "numeric", 
-                month: "long",
-                day: "numeric"
-              }),
-              activities: [],
-            };
-          }
-          acc[dateKey].activities.push({
-            id: item.id,
-            time: item.waktu,
-            title: item.judul,
-            description: item.deskripsi,
-            location: item.tempat,
-            completed: item.status === "selesai"
-          });
-          return acc;
-        }, {});
-        
-        setAgendaGroups(Object.values(groupedByDate));
+        setAgendaGroups([]);
       } finally {
         setLoading(false);
       }
@@ -166,7 +100,7 @@ export default function AgendaKegiatan() {
                 </div>
                 <div className="p-6">
                   {group.activities.map((activity, activityIndex) => (
-                    <div key={`activity-${activity.id || activityIndex}`} className="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50">
+                    <div key={`activity-${activity.id || activityIndex}`} className="flex items-start space-x-4 p-4 rounded-lg">
                       <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                         activity.completed ? 'bg-green-100' : 'bg-blue-100'
                       }`}>
@@ -188,9 +122,23 @@ export default function AgendaKegiatan() {
                         <p className="text-sm text-gray-600 mb-2">
                           {activity.description}
                         </p>
-                        <div className="flex items-center text-xs text-gray-500">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {activity.location}
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                          <div className="flex items-center">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {activity.location}
+                          </div>
+                          <div className="flex items-center">
+                            <span className="font-medium">Kategori:</span> {activity.category}
+                          </div>
+                          <div className="flex items-center">
+                            <span className="font-medium">Penyelenggara:</span> {activity.organizer}
+                          </div>
+                          <div className="flex items-center">
+                            <span className="font-medium">Peserta:</span> {activity.participants}
+                          </div>
+                          <div className="flex items-center">
+                            <span className="font-medium">Prioritas:</span> {activity.priority}
+                          </div>
                         </div>
                       </div>
                     </div>

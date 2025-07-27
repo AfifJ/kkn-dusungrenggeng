@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Calendar, Clock, MapPin, CheckCircle, Circle } from "lucide-react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { kalenderData, kategoriWarna } from "../../data/kalender";
 
 export default function KalenderPage() {
   const [agenda, setAgenda] = useState([]);
@@ -14,7 +13,7 @@ export default function KalenderPage() {
   useEffect(() => {
     const fetchAgenda = async () => {
       try {
-        const q = query(collection(db, "agenda"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "agenda"), orderBy("tanggal", "asc"), orderBy("waktu", "asc"));
         const querySnapshot = await getDocs(q);
 
         const agendaList = querySnapshot.docs.map((doc) => ({
@@ -27,11 +26,11 @@ export default function KalenderPage() {
           const grouped = groupAgendaByDate(agendaList);
           setGroupedAgenda(grouped);
         } else {
-          setGroupedAgenda(kalenderData); // Fallback to static data
+          setGroupedAgenda([]); // Fallback to static data
         }
       } catch (error) {
         console.error("Error fetching agenda:", error);
-        setGroupedAgenda(kalenderData); // Fallback to static data
+        setGroupedAgenda([]); // Fallback to static data
       } finally {
         setLoading(false);
       }
@@ -58,12 +57,15 @@ export default function KalenderPage() {
 
       grouped[date].activities.push({
         id: item.id,
-        title: item.nama || item.judul,
+        title: item.judul,
         description: item.deskripsi,
-        time: item.waktu || "08:00",
-        location: item.lokasi || "Dusun Grenggeng",
-        category: item.kategori || "Kegiatan",
-        completed: item.status === "selesai" || false,
+        time: item.waktu,
+        location: item.tempat,
+        category: item.kategori,
+        organizer: item.penyelenggara,
+        participants: item.peserta,
+        priority: item.prioritas,
+        completed: item.status === "completed",
       });
     });
 
@@ -73,7 +75,6 @@ export default function KalenderPage() {
   };
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* Header */}
       <div className="bg-green-700 py-16 mt-16">
         <div className="container mx-auto px-4">
@@ -278,12 +279,7 @@ export default function KalenderPage() {
                                 >
                                   {activity.title}
                                 </h4>
-                                <span
-                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                    kategoriWarna[activity.category] ||
-                                    "bg-gray-100 text-gray-800"
-                                  }`}
-                                >
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                   {activity.category}
                                 </span>
                               </div>
@@ -308,6 +304,15 @@ export default function KalenderPage() {
                                 <div className="flex items-center gap-1 text-gray-600">
                                   <MapPin className="w-4 h-4" />
                                   <span>{activity.location}</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-gray-600">
+                                  <span className="font-medium">Penyelenggara:</span> {activity.organizer}
+                                </div>
+                                <div className="flex items-center gap-1 text-gray-600">
+                                  <span className="font-medium">Peserta:</span> {activity.participants}
+                                </div>
+                                <div className="flex items-center gap-1 text-gray-600">
+                                  <span className="font-medium">Prioritas:</span> {activity.priority}
                                 </div>
                               </div>
                             </div>

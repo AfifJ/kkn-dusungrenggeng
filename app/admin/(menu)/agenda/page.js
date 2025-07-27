@@ -25,7 +25,6 @@ import AgendaForm from "./components/AgendaForm";
 import DeleteModal from "./components/DeleteModal";
 import Dialog from "@/components/admin/Dialog";
 import { useDialog } from "@/hooks/useDialog";
-import { agendaData } from "@/data/agenda";
 import { toast } from "react-hot-toast";
 
 export default function AdminAgenda() {
@@ -96,34 +95,7 @@ export default function AdminAgenda() {
     } catch (error) {
       console.error("Error fetching agenda:", error);
       toast.error("Gagal memuat data agenda");
-      // Use fallback data on error
-      const groupedByDate = agendaData.reduce((acc, item) => {
-        const dateKey = item.tanggal;
-        if (!acc[dateKey]) {
-          acc[dateKey] = {
-            date: item.tanggal,
-            dayName: new Date(item.tanggal).toLocaleDateString("id-ID", {
-              weekday: "long",
-            }),
-            activities: [],
-          };
-        }
-        acc[dateKey].activities.push({
-          id: item.id,
-          time: item.waktu,
-          title: item.judul,
-          description: item.deskripsi,
-          location: item.tempat,
-          completed: item.status === "completed",
-          category: item.kategori,
-        });
-        return acc;
-      }, {});
-
-      const transformedData = Object.values(groupedByDate).sort(
-        (a, b) => new Date(a.date) - new Date(b.date)
-      );
-      setAgenda(transformedData);
+      setAgenda([]);
     } finally {
       setLoading(false);
     }

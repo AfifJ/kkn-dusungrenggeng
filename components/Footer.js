@@ -14,7 +14,6 @@ import {
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { websiteData } from "@/data/website";
 import Link from "next/link";
 
 const iconMap = {
@@ -31,7 +30,7 @@ const iconMap = {
 };
 
 export default function Footer() {
-  const [settings, setSettings] = useState(websiteData);
+  const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,12 +44,9 @@ export default function Footer() {
 
       if (docSnap.exists()) {
         setSettings(docSnap.data());
-      } else {
-        setSettings(websiteData);
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
-      setSettings(websiteData);
     } finally {
       setLoading(false);
     }
@@ -64,13 +60,12 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <h3 className="text-xl font-bold">
-                {settings.footer?.title || "Dusun Grenggeng"}
+                {settings.footer?.title || "Loading..."}
               </h3>
             </div>
 
             <p className="text-green-100">
-              {settings.footer?.description ||
-                "Desa penghasil tahu dan hasil tani berkualitas dengan keindahan alam yang mempesona."}
+              {settings.footer?.description || "Loading data..."}
             </p>
 
             {/* Quick Links */}
@@ -320,7 +315,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-8 border-t border-green-700 pt-6 text-center text-sm text-green-200">
           <p>
-            ©2025 {settings.footer?.title || "Dusun Grenggeng"}. Seluruh hak
+            ©2025 {settings.footer?.title || "Loading..."}. Seluruh hak
             cipta dilindungi.
           </p>
         </div>

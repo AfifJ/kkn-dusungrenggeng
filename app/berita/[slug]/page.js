@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { beritaData } from "../../../data/berita";
 import BlockRenderer from "../../admin/(menu)/berita/components/BlockRenderer";
 import { getBeritaBySlug } from "../../admin/(menu)/berita/actions";
 
@@ -19,17 +18,8 @@ export default function BeritaDetailPage() {
   useEffect(() => {
     const fetchBerita = async () => {
       try {
-        // First try to find by slug using the new function
-        let foundBerita = await getBeritaBySlug(params.slug);
+        const foundBerita = await getBeritaBySlug(params.slug);
         
-        if (!foundBerita) {
-          // Fallback to local data
-          foundBerita = beritaData.find(b => 
-            b.slug === params.slug || 
-            b.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') === params.slug
-          );
-        }
-
         if (foundBerita) {
           setBerita(foundBerita);
           
@@ -44,44 +34,13 @@ export default function BeritaDetailPage() {
             .map(doc => ({ id: doc.id, ...doc.data() }))
             .filter(b => b.id !== foundBerita.id)
             .slice(0, 3);
-          
-          if (related.length === 0) {
-            // Fallback for related berita
-            const fallbackRelated = beritaData
-              .filter(b => 
-                b.kategori === foundBerita.kategori && 
-                b.status === "published" &&
-                b.id !== foundBerita.id
-              )
-              .slice(0, 3);
-            setRelatedBerita(fallbackRelated);
-          } else {
-            setRelatedBerita(related);
-          }
+          setRelatedBerita(related);
         } else {
           router.push('/berita');
         }
       } catch (error) {
         console.error("Error fetching berita:", error);
-        // Try fallback to local data
-        const foundBerita = beritaData.find(b => 
-          b.slug === params.slug || 
-          b.judul.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') === params.slug
-        );
-        
-        if (foundBerita) {
-          setBerita(foundBerita);
-          const related = beritaData
-            .filter(b => 
-              b.kategori === foundBerita.kategori && 
-              b.status === "published" &&
-              b.id !== foundBerita.id
-            )
-            .slice(0, 3);
-          setRelatedBerita(related);
-        } else {
-          router.push('/berita');
-        }
+        router.push('/berita');
       } finally {
         setLoading(false);
       }

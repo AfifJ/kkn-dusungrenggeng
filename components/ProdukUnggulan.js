@@ -24,23 +24,10 @@ export default function ProdukUnggulan() {
           ...doc.data()
         }));
         
-        if (produkList.length > 0) {
-          setProdukUnggulan(produkList);
-        } else {
-          // Fallback to import if no data in Firebase
-          const { produkData } = await import("../data/produk");
-          setProdukUnggulan(produkData.slice(0, 3));
-        }
+        setProdukUnggulan(produkList);
       } catch (error) {
         console.error("Error fetching produk:", error);
-        // Fallback to import if Firebase fails
-        try {
-          const { produkData } = await import("../data/produk");
-          setProdukUnggulan(produkData.slice(0, 3));
-        } catch (importError) {
-          console.error("Error importing produk data:", importError);
-          setProdukUnggulan([]);
-        }
+        setProdukUnggulan([]);
       } finally {
         setLoading(false);
       }

@@ -1,10 +1,10 @@
-import admin, { initializeApp } from "firebase-admin";
-import { getApps, getFirestore } from "firebase-admin/firestore";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
 const serviceAccount = {
   type: "service_account",
   project_id: "grenggeng-2b53c",
-  private_key_id: process.env.FIRABSAE_PRIVATE_KEY_ID,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
   private_key: process.env.FIREBASE_PRIVATE_KEY,
   client_email: process.env.FIREBASE_CLIENT_EMAIL,
   client_id: process.env.FIREBASE_CLIENT_ID,
@@ -17,16 +17,15 @@ const serviceAccount = {
 };
 
 let firestore;
-const currentApps = getApps;
+const currentApps = getApps();
 
-if (currentApps.length) {
+if (!currentApps.length) {
   const app = initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: cert(serviceAccount)
   });
   firestore = getFirestore(app);
 } else {
-  const app = currentApps[0];
-  firestore = getFirestore(app);
+  firestore = getFirestore();
 }
 
-export { firestore };
+export { firestore, firestore as db };

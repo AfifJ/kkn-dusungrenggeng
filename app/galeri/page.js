@@ -4,11 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/firebase/client";
-import { galeriData } from "../../data/galeri";
 
 export default function GaleriPage() {
   const [galeri, setGaleri] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchGaleri = async () => {
@@ -24,10 +24,10 @@ export default function GaleriPage() {
           ...doc.data()
         }));
         
-        setGaleri(galeriList.length > 0 ? galeriList : galeriData);
+        setGaleri(galeriList);
       } catch (error) {
         console.error("Error fetching galeri:", error);
-        setGaleri(galeriData); // Fallback to static data
+        setError("Gagal memuat data galeri");
       } finally {
         setLoading(false);
       }
@@ -96,7 +96,11 @@ export default function GaleriPage() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : galeri.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {galeri.map((item) => (
               <div
@@ -127,6 +131,10 @@ export default function GaleriPage() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Tidak ada data galeri yang tersedia</p>
           </div>
         )}
 
