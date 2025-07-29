@@ -96,9 +96,14 @@ export default function ProdukUnggulan() {
                     <span className="text-lg font-semibold text-green-700">
                       {item.harga}
                     </span>
-                    <button className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-800">
+                    <Link
+                      href={`https://wa.me/62895363611056?text=Saya%20tertarik%20dengan%20produk%20anda%20"${encodeURIComponent(item.nama)}"`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-800 inline-block"
+                    >
                       Pesan Sekarang
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

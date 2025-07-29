@@ -51,7 +51,7 @@ export default function AgendaKegiatan() {
               organizer: item.penyelenggara,
               participants: item.peserta,
               priority: item.prioritas,
-              completed: item.status === "completed"
+              completed: item.status === "completed" || item.status === "selesai"
             });
             return acc;
           }, {});
