@@ -97,7 +97,7 @@ export default function ProdukUnggulan() {
                       {item.harga}
                     </span>
                     <Link
-                      href={`https://wa.me/62895363611056?text=Saya%20tertarik%20dengan%20produk%20anda%20"${encodeURIComponent(item.nama)}"`}
+                      href={`https://wa.me/${item.kontak ? item.kontak.startsWith('0') ? '62' + item.kontak.substring(1) : item.kontak : ''}?text=Saya%20tertarik%20dengan%20produk%20anda%20"${encodeURIComponent(item.nama)}"`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-800 inline-block"

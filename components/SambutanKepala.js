@@ -58,7 +58,7 @@ export default function SambutanKepala() {
               <div className="w-full p-6 md:p-8">
                 <div className="mb-4">
                   <h3 className="text-2xl font-bold text-green-700">
-                    {settings.sambutan.nama}
+                    {settings.sambutan.namaKepala}
                   </h3>
                   <p className="text-green-600">
                     Kepala Dusun Grenggeng
@@ -67,7 +67,7 @@ export default function SambutanKepala() {
 
                 <div className="prose text-gray-700">
                   <p>
-                    {settings.sambutan.paragraf}
+                    {settings.sambutan.pesanSambutan}
                   </p>
                 </div>
               </div>
